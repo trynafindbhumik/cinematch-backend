@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct {
-	Port          string
+	Port           string
 	AllowedOrigins []string
+	Environment    string
 }
 
 var App Config
@@ -21,9 +22,10 @@ func Load() {
 		log.Println("No .env file found — using environment variables")
 	}
 
-	// Server port - default to 8080 in development, use environment variable
+	// Environment
+	App.Environment = getEnv("ENVIRONMENT", "development")
 	App.Port = getEnv("PORT", "8080")
-	
+
 	// CORS allowed origins - comma-separated in env
 	originsStr := getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
 	App.AllowedOrigins = parseOrigins(originsStr)

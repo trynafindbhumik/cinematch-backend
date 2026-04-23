@@ -12,11 +12,19 @@ import (
 
 	"github.com/trynafindbhumik/cinematch-backend/internal/config"
 	"github.com/trynafindbhumik/cinematch-backend/internal/db"
-	"github.com/trynafindbhumik/cinematch-backend/internal/middleware"
+	"github.com/trynafindbhumik/cinematch-backend/internal/modules/auth"
+	"github.com/trynafindbhumik/cinematch-backend/internal/routes"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/email"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/jwt"
 )
 
 func main() {
 	config.Load()
+	config.LoadAuthConfig()
+	email.LoadEmailConfig()
+
+	// Set JWT signing key
+	jwt.SetJWTSigningKey(config.Auth.JWTSigningKey)
 
 	ctx := context.Background()
 
@@ -25,29 +33,24 @@ func main() {
 	}
 	defer db.Close()
 
-	fmt.Println("DB connected successfully!")
-
 	// Run database migrations
 	if err := db.RunMigrations(); err != nil {
 		log.Fatal("Migration failed:", err)
 	}
 	fmt.Println("Migrations applied successfully!")
 
-	// Create HTTP server with CORS middleware
-	mux := http.NewServeMux()
-	
-	// Health check endpoint
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
-	})
+	// Initialize auth module
+	authRepo := auth.NewRepository()
+	authService := auth.NewService(authRepo)
+	authHandler := auth.NewHandler(authService)
 
-	// Wrap with CORS middleware
-	handler := middleware.CORS()(mux)
+	// Setup router
+	router := routes.SetupRouter(authHandler)
 
+	// Create HTTP server
 	server := &http.Server{
 		Addr:         ":" + config.App.Port,
-		Handler:      handler,
+		Handler:      router,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,

@@ -1,0 +1,344 @@
+definitions:
+  auth.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  auth.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  auth.ForgotPasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+    type: object
+  auth.LogoutRequest:
+    properties:
+      refreshToken:
+        type: string
+    type: object
+  auth.ResendVerificationRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  auth.ResendVerificationResponse:
+    properties:
+      message:
+        type: string
+      verificationId:
+        type: string
+    type: object
+  auth.ResetPasswordRequest:
+    properties:
+      newPassword:
+        minLength: 8
+        type: string
+      token:
+        type: string
+      verificationId:
+        type: string
+    required:
+    - newPassword
+    - token
+    type: object
+  auth.ResetPasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.SignupRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.SignupResponse:
+    properties:
+      message:
+        type: string
+      verificationId:
+        type: string
+    type: object
+  auth.VerifyRequest:
+    properties:
+      otp:
+        type: string
+      token:
+        type: string
+      verificationId:
+        type: string
+    required:
+    - verificationId
+    type: object
+  auth.VerifyResponse:
+    properties:
+      accessToken:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Sends password reset email with token link
+      parameters:
+      - description: Forgot password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reset email sent
+          schema:
+            $ref: '#/definitions/auth.ForgotPasswordResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Request password reset
+      tags:
+      - auth
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates user with email and password, creates session
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Account locked
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates user session and clears refresh token cookie
+      parameters:
+      - description: Logout request
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/auth.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+      summary: Logout user
+      tags:
+      - auth
+  /v1/auth/resend:
+    post:
+      consumes:
+      - application/json
+      description: Resends verification OTP for unverified users
+      parameters:
+      - description: Resend verification request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResendVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification code sent
+          schema:
+            $ref: '#/definitions/auth.ResendVerificationResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Resend verification code
+      tags:
+      - auth
+  /v1/auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Resets user password using token from email link
+      parameters:
+      - description: Reset password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successful
+          schema:
+            $ref: '#/definitions/auth.ResetPasswordResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Invalid or expired token
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Max attempts reached
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Reset password
+      tags:
+      - auth
+  /v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and sends verification OTP via email
+      parameters:
+      - description: Signup request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created, verification required
+          schema:
+            $ref: '#/definitions/auth.SignupResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /v1/auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies user email with OTP or token and creates a session
+      parameters:
+      - description: Verification request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.VerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Email verified, session created
+          schema:
+            $ref: '#/definitions/auth.VerifyResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Invalid OTP or token
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "410":
+          description: OTP expired
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Max attempts reached
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Verify email address
+      tags:
+      - auth
+swagger: "2.0"

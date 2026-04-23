@@ -6,12 +6,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var pool *pgxpool.Pool
 
-// Pool returns the database pool. Panics if not connected.
 func Pool() *pgxpool.Pool {
 	if pool == nil {
 		panic("database not connected — call db.Connect() first")
@@ -19,7 +19,6 @@ func Pool() *pgxpool.Pool {
 	return pool
 }
 
-// Connect establishes a database connection pool from DATABASE_URL env var.
 func Connect(ctx context.Context) error {
 	cfg, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -32,19 +31,31 @@ func Connect(ctx context.Context) error {
 	cfg.MaxConnIdleTime = 30 * time.Minute
 	cfg.HealthCheckPeriod = 1 * time.Minute
 
-	pool, err = pgxpool.NewWithConfig(ctx, cfg)
+	// ✅ Best practice
+	if os.Getenv("APP_ENV") == "production" {
+		cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeCacheDescribe
+	} else {
+		cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	p, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("failed to create connection pool: %w", err)
 	}
 
-	if err := pool.Ping(ctx); err != nil {
+	if err := p.Ping(ctx); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
+	pool = p
+
+	fmt.Println("DB connected successfully!")
 	return nil
 }
 
-// Close releases the connection pool.
 func Close() {
 	if pool != nil {
 		pool.Close()

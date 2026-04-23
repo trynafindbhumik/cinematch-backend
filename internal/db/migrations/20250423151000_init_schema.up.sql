@@ -18,6 +18,11 @@ CREATE TYPE public.watch_status AS ENUM (
 	'watchlist',
 	'watched');
 
+CREATE TYPE public.verification_type AS ENUM (
+	'signup',
+	'password_reset'
+);
+
 -- Create sequences
 CREATE SEQUENCE genres_id_seq INCREMENT BY 1 MINVALUE 1 MAXVALUE 32767 START 1 CACHE 1 NO CYCLE;
 CREATE SEQUENCE streaming_services_id_seq INCREMENT BY 1 MINVALUE 1 MAXVALUE 32767 START 1 CACHE 1 NO CYCLE;
@@ -93,18 +98,22 @@ CREATE TABLE sessions (
 	CONSTRAINT sessions_refresh_token_hash_key UNIQUE (refresh_token_hash),
 	CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-CREATE INDEX idx_sessions_user_id ON public.sessions USING btree (user_id);
 
--- Create password_resets table
-CREATE TABLE password_resets (
-	id bigserial PRIMARY KEY,
-	user_id bigint NOT NULL,
-	token_hash text NOT NULL,
-	expires_at timestamptz NOT NULL,
-	created_at timestamptz DEFAULT now() NOT NULL,
-	CONSTRAINT password_resets_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+CREATE INDEX idx_sessions_user_expires ON public.sessions USING btree (user_id, expires_at);
+
+-- Create email_verifications table
+CREATE TABLE email_verifications (
+	id BIGSERIAL PRIMARY KEY,
+	email TEXT NOT NULL,
+	type public.verification_type NOT NULL,
+	otp_hash TEXT,
+	token_hash TEXT,
+	expires_at TIMESTAMPTZ NOT NULL,
+	used_at TIMESTAMPTZ,
+	attempts INT DEFAULT 0,
+	created_at TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX idx_password_resets_user_id ON public.password_resets USING btree (user_id);
+
 
 -- Create user_daily_generation_log table
 CREATE TABLE user_daily_generation_log (
@@ -118,6 +127,8 @@ CREATE TABLE user_daily_generation_log (
 	CONSTRAINT user_daily_generation_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE INDEX idx_generation_user_date ON public.user_daily_generation_log USING btree (user_id, date);
+
 -- Create user_daily_suggestion_movies table
 CREATE TABLE user_daily_suggestion_movies (
 	id bigserial NOT NULL,
@@ -126,7 +137,7 @@ CREATE TABLE user_daily_suggestion_movies (
 	title text NOT NULL,
 	poster_url text NULL,
 	description text NULL,
-	genres _text NULL,
+	genres text NULL,
 	release_year int2 NULL,
 	duration int2 NULL,
 	"language" varchar(10) NULL,
@@ -135,8 +146,11 @@ CREATE TABLE user_daily_suggestion_movies (
 	reaction public.suggestion_reaction NULL,
 	created_at timestamptz DEFAULT now() NOT NULL,
 	CONSTRAINT user_daily_suggestion_movies_pkey PRIMARY KEY (id),
+	CONSTRAINT uniq_daily_user_movie UNIQUE (user_id, movie_id),
 	CONSTRAINT user_daily_suggestion_movies_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_daily_queue ON public.user_daily_suggestion_movies USING btree (user_id, reaction) WHERE (reaction IS NULL);
 
 -- Create user_genres table
 CREATE TABLE user_genres (
@@ -165,6 +179,9 @@ CREATE TABLE user_movies (
 	CONSTRAINT user_movies_user_id_movie_id_key UNIQUE (user_id, movie_id),
 	CONSTRAINT user_movies_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_user_movies_status ON public.user_movies USING btree (user_id, status);
+CREATE INDEX idx_user_movies_favorite ON public.user_movies USING btree (user_id) WHERE (is_favorite = true);
 
 -- Create user_reviews table
 CREATE TABLE user_reviews (
@@ -214,7 +231,8 @@ CREATE TABLE user_suggestions (
 	CONSTRAINT user_suggestions_user_id_week_start_suggestion_index_key UNIQUE (user_id, week_start, suggestion_index),
 	CONSTRAINT user_suggestions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-CREATE INDEX idx_user_suggestions_user_week ON public.user_suggestions USING btree (user_id, week_start);
+
+CREATE INDEX idx_user_suggestions_created ON public.user_suggestions USING btree (user_id, created_at DESC);
 
 -- Create user_weekly_suggestions table
 CREATE TABLE user_weekly_suggestions (
@@ -226,6 +244,8 @@ CREATE TABLE user_weekly_suggestions (
 	CONSTRAINT weekly_suggestions_user_id_week_start_key UNIQUE (user_id, week_start),
 	CONSTRAINT weekly_suggestions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_weekly_user_created ON public.user_weekly_suggestions USING btree (user_id, created_at DESC);
 
 -- Create user_suggestion_movies table
 CREATE TABLE user_suggestion_movies (
@@ -242,7 +262,8 @@ CREATE TABLE user_suggestion_movies (
 	CONSTRAINT user_suggestion_movies_pkey PRIMARY KEY (id),
 	CONSTRAINT user_suggestion_movies_suggestion_id_fkey FOREIGN KEY (suggestion_id) REFERENCES user_suggestions(id) ON DELETE CASCADE
 );
-CREATE INDEX idx_user_suggestion_movies_suggestion ON public.user_suggestion_movies USING btree (suggestion_id);
+
+CREATE INDEX idx_user_suggestion_movies_position ON public.user_suggestion_movies USING btree (suggestion_id, "position");
 
 -- Create user_weekly_suggestion_movies table
 CREATE TABLE user_weekly_suggestion_movies (
@@ -260,3 +281,5 @@ CREATE TABLE user_weekly_suggestion_movies (
 	CONSTRAINT user_weekly_suggestion_movies_suggestion_id_movie_id_key UNIQUE (suggestion_id, movie_id),
 	CONSTRAINT user_weekly_suggestion_movies_suggestion_id_fkey FOREIGN KEY (suggestion_id) REFERENCES user_weekly_suggestions(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_weekly_suggestion_movies_position ON public.user_weekly_suggestion_movies USING btree (suggestion_id, "position");
