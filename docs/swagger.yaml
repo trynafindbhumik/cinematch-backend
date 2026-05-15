@@ -1,0 +1,3216 @@
+basePath: /
+definitions:
+  auth.DeleteSessionRequest:
+    properties:
+      magic_link:
+        type: string
+      session_id:
+        type: string
+    required:
+    - session_id
+    type: object
+  auth.DeleteSessionResponse:
+    properties:
+      access_token:
+        type: string
+      message:
+        type: string
+      needs_onboarding:
+        type: boolean
+    type: object
+  auth.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  auth.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  auth.ForgotPasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.GetSessionsResponse:
+    properties:
+      sessions:
+        items:
+          $ref: '#/definitions/auth.SessionResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  auth.InitVerifyResponse:
+    properties:
+      email:
+        type: string
+      is_verified:
+        type: boolean
+      message:
+        type: string
+      verification_id:
+        type: string
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      is_first_login:
+        type: boolean
+      is_session_exhausted:
+        type: boolean
+      is_verified:
+        type: boolean
+      magic_link:
+        type: string
+      needs_onboarding:
+        type: boolean
+    type: object
+  auth.LogoutRequest:
+    type: object
+  auth.RefreshTokenResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+  auth.ResendResetRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  auth.ResendResetResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.ResendVerificationRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  auth.ResendVerificationResponse:
+    properties:
+      expires_at:
+        type: integer
+      message:
+        type: string
+      verification_id:
+        type: string
+    type: object
+  auth.ResetPasswordRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
+  auth.ResetPasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.SessionResponse:
+    properties:
+      created_at:
+        type: string
+      device_name:
+        type: string
+      id:
+        type: string
+      last_login:
+        type: string
+      user_agent:
+        type: string
+    type: object
+  auth.SignupRequest:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.SignupResponse:
+    properties:
+      message:
+        type: string
+      verification_id:
+        type: string
+    type: object
+  auth.VerifyRequest:
+    properties:
+      otp:
+        type: string
+      token:
+        type: string
+      verification_id:
+        type: string
+    type: object
+  auth.VerifyResponse:
+    properties:
+      access_token:
+        type: string
+      is_first_login:
+        type: boolean
+      is_verified:
+        type: boolean
+      message:
+        type: string
+      needs_onboarding:
+        type: boolean
+    type: object
+  export.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  export.ExportRequest:
+    properties:
+      favorites:
+        type: boolean
+      preferences:
+        type: boolean
+      profile_info:
+        type: boolean
+      reviews:
+        type: boolean
+      watched:
+        type: boolean
+      watchlist:
+        type: boolean
+    type: object
+  export.ExportResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  favorites.AddFavoritesRequest:
+    properties:
+      tmdb_ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - tmdb_ids
+    type: object
+  favorites.AddFavoritesResponse:
+    properties:
+      added:
+        items:
+          type: integer
+        type: array
+      failed:
+        additionalProperties:
+          type: string
+        type: object
+      message:
+        type: string
+      total_added:
+        type: integer
+      total_failed:
+        type: integer
+    type: object
+  favorites.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  favorites.FavoriteMovie:
+    properties:
+      added_at:
+        type: string
+      genres:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      movie_db_id:
+        type: integer
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+    type: object
+  favorites.GetFavoriteIDsResponse:
+    properties:
+      tmdb_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  favorites.GetFavoritesResponse:
+    properties:
+      favorites:
+        items:
+          $ref: '#/definitions/favorites.FavoriteMovie'
+        type: array
+      limit:
+        type: integer
+      next_cursor:
+        type: string
+      total_count:
+        type: integer
+    type: object
+  genres.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  genres.GenreResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  genres.GenresListResponse:
+    properties:
+      genres:
+        items:
+          $ref: '#/definitions/genres.GenreResponse'
+        type: array
+    type: object
+  genres.UserGenreResponse:
+    properties:
+      genreId:
+        description: Foreign key to genres table
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  genres.UserGenresListResponse:
+    properties:
+      genres:
+        items:
+          $ref: '#/definitions/genres.UserGenreResponse'
+        type: array
+    type: object
+  movies.CastMember:
+    properties:
+      character:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      order:
+        type: integer
+      profile_url:
+        type: string
+    type: object
+  movies.CreditsResponse:
+    properties:
+      cast:
+        items:
+          $ref: '#/definitions/movies.CastMember'
+        type: array
+    type: object
+  movies.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  movies.MovieDetailsResponse:
+    properties:
+      adult:
+        type: boolean
+      backdrop_url:
+        type: string
+      budget:
+        type: integer
+      credits:
+        $ref: '#/definitions/movies.CreditsResponse'
+      dislike_count:
+        type: integer
+      genres:
+        items:
+          type: string
+        type: array
+      hate_count:
+        type: integer
+      like_count:
+        type: integer
+      love_count:
+        type: integer
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      revenue:
+        type: integer
+      runtime:
+        type: integer
+      skip_count:
+        type: integer
+      status:
+        type: string
+      tagline:
+        type: string
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+      total_count:
+        description: Vote counts from our DB (always present, 0 if movie not in DB)
+        type: integer
+      user_reaction:
+        description: User's reaction to this movie (empty if not reacted)
+        type: string
+      watch_providers:
+        $ref: '#/definitions/movies.WatchProvidersDTO'
+    type: object
+  movies.MovieResponse:
+    properties:
+      backdrop_url:
+        type: string
+      dislike_count:
+        type: integer
+      genres:
+        items:
+          type: string
+        type: array
+      hate_count:
+        type: integer
+      like_count:
+        type: integer
+      love_count:
+        type: integer
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      runtime:
+        type: integer
+      skip_count:
+        type: integer
+      status:
+        type: string
+      tagline:
+        type: string
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+      total_count:
+        description: Vote counts from our DB (always present, 0 if movie not in DB)
+        type: integer
+      user_reaction:
+        description: User's reaction to this movie (empty if not reacted)
+        type: string
+    type: object
+  movies.ProviderInfo:
+    properties:
+      display_priority:
+        type: integer
+      logo_url:
+        type: string
+      provider_id:
+        type: integer
+      provider_name:
+        type: string
+    type: object
+  movies.SearchResponse:
+    properties:
+      movies:
+        items:
+          $ref: '#/definitions/movies.MovieResponse'
+        type: array
+      page:
+        type: integer
+      total_pages:
+        type: integer
+      total_results:
+        type: integer
+    type: object
+  movies.TrendingResponse:
+    properties:
+      movies:
+        items:
+          $ref: '#/definitions/movies.MovieResponse'
+        type: array
+      page:
+        type: integer
+      total_pages:
+        type: integer
+      total_results:
+        type: integer
+    type: object
+  movies.VideoDetail:
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+      official:
+        type: boolean
+      site:
+        type: string
+      type:
+        type: string
+    type: object
+  movies.VideosResponse:
+    properties:
+      id:
+        type: integer
+      videos:
+        items:
+          $ref: '#/definitions/movies.VideoDetail'
+        type: array
+    type: object
+  movies.WatchProvidersDTO:
+    properties:
+      results:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/movies.ProviderInfo'
+          type: array
+        type: object
+    type: object
+  profile.ChangePasswordRequest:
+    properties:
+      logoutFromAllDevices:
+        type: boolean
+      newPassword:
+        minLength: 8
+        type: string
+      oldPassword:
+        type: string
+    required:
+    - newPassword
+    - oldPassword
+    type: object
+  profile.ChangePasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  profile.DeleteAccountRequest:
+    properties:
+      confirmText:
+        type: string
+    required:
+    - confirmText
+    type: object
+  profile.DeleteAccountResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  profile.DeleteProfilePictureResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  profile.DisableAccountRequest:
+    properties:
+      confirmText:
+        type: string
+      durationDays:
+        description: 7, 30, or 90 days
+        enum:
+        - 7
+        - 30
+        - 90
+        type: integer
+    required:
+    - confirmText
+    - durationDays
+    type: object
+  profile.DisableAccountResponse:
+    properties:
+      disabledUntil:
+        description: Unix timestamp
+        type: integer
+      message:
+        type: string
+    type: object
+  profile.EmailChangeStepResponse:
+    properties:
+      expiresAt:
+        type: integer
+      message:
+        type: string
+      newEmail:
+        type: string
+      step:
+        description: '"otp_sent_to_old", "otp_sent_to_new", "email_updated"'
+        type: string
+    type: object
+  profile.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  profile.GetProfileResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      isVerified:
+        type: boolean
+      name:
+        type: string
+      profileUrl:
+        type: string
+      publicId:
+        type: string
+      smartSuggest:
+        type: boolean
+      tag:
+        description: screen_enthusiast, cinema_lover, cinephile, cinephile_pro, cinephile_elite
+        type: string
+    type: object
+  profile.InitiateEmailChangeRequest:
+    properties:
+      newEmail:
+        type: string
+    required:
+    - newEmail
+    type: object
+  profile.ResendEmailChangeResponse:
+    properties:
+      expiresAt:
+        type: integer
+      message:
+        type: string
+      step:
+        description: '"otp_sent_to_old" or "otp_sent_to_new"'
+        type: string
+    type: object
+  profile.UpdateProfileResponse:
+    properties:
+      message:
+        type: string
+      name:
+        type: string
+      profileUrl:
+        type: string
+      smartSuggest:
+        type: boolean
+    type: object
+  profile.VerifyEmailRequest:
+    properties:
+      otp:
+        type: string
+    required:
+    - otp
+    type: object
+  profile.VerifyEmailResponse:
+    properties:
+      isVerified:
+        type: boolean
+      message:
+        type: string
+      newEmail:
+        description: For email_change_old flow
+        type: string
+      step:
+        description: '"otp_sent_to_new", "email_updated"'
+        type: string
+    type: object
+  reactions.AddReactionRequest:
+    properties:
+      reaction:
+        type: string
+      tmdb_id:
+        type: integer
+    required:
+    - reaction
+    - tmdb_id
+    type: object
+  reactions.AddReactionResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  reactions.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  reviews.CreateReviewRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 10
+        minimum: 1
+        type: integer
+      tmdb_id:
+        type: integer
+    required:
+    - rating
+    - tmdb_id
+    type: object
+  reviews.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  reviews.ReviewResponse:
+    properties:
+      comment:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      poster_url:
+        type: string
+      rating:
+        type: integer
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  reviews.ReviewsListItem:
+    properties:
+      author_name:
+        type: string
+      author_picture:
+        type: string
+      comment:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      poster_url:
+        type: string
+      rating:
+        type: number
+      source:
+        description: '"db" or "tmdb"'
+        type: string
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  reviews.ReviewsListResponse:
+    properties:
+      has_more:
+        type: boolean
+      next_cursor:
+        type: string
+      reviews:
+        items:
+          $ref: '#/definitions/reviews.ReviewsListItem'
+        type: array
+    type: object
+  reviews.UpdateReviewRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 10
+        minimum: 1
+        type: integer
+    type: object
+  streaming_services.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  streaming_services.SearchStreamingServicesResponse:
+    properties:
+      limit:
+        type: integer
+      next_cursor:
+        type: string
+      streamingServices:
+        items:
+          $ref: '#/definitions/streaming_services.StreamingServiceResponse'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  streaming_services.StreamingServiceResponse:
+    properties:
+      iconUrl:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  streaming_services.StreamingServicesListResponse:
+    properties:
+      limit:
+        type: integer
+      next_cursor:
+        type: string
+      streamingServices:
+        items:
+          $ref: '#/definitions/streaming_services.StreamingServiceResponse'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  streaming_services.UpdateStreamingServicesRequest:
+    properties:
+      serviceIds:
+        items:
+          type: integer
+        type: array
+    required:
+    - serviceIds
+    type: object
+  streaming_services.UserStreamingServiceResponse:
+    properties:
+      iconUrl:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      sourceId:
+        description: Foreign key to streaming_services table
+        type: integer
+    type: object
+  streaming_services.UserStreamingServicesListResponse:
+    properties:
+      streamingServices:
+        items:
+          $ref: '#/definitions/streaming_services.UserStreamingServiceResponse'
+        type: array
+    type: object
+  suggestion_tries.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  suggestion_tries.Movie:
+    properties:
+      backdrop_url:
+        type: string
+      genres:
+        items:
+          type: string
+        type: array
+      match_reason:
+        type: string
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+    type: object
+  suggestion_tries.SuggestionTriesResponse:
+    properties:
+      generated_at:
+        type: string
+      remaining_tries:
+        type: integer
+      suggestions:
+        items:
+          $ref: '#/definitions/suggestion_tries.Movie'
+        type: array
+      try_number:
+        type: integer
+      week_start:
+        type: string
+    type: object
+  suggestions.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  suggestions.GenerateSuggestionsResponse:
+    properties:
+      finished:
+        type: boolean
+      generation_date:
+        type: string
+      message:
+        type: string
+      regeneration:
+        type: boolean
+      suggestions:
+        items:
+          $ref: '#/definitions/suggestions.MovieDetails'
+        type: array
+    type: object
+  suggestions.MovieDetails:
+    properties:
+      backdrop_url:
+        type: string
+      dislike_count:
+        type: integer
+      genres:
+        items:
+          type: string
+        type: array
+      hate_count:
+        type: integer
+      like_count:
+        type: integer
+      love_count:
+        type: integer
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      runtime:
+        type: integer
+      skip_count:
+        type: integer
+      status:
+        type: string
+      tagline:
+        type: string
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+      total_count:
+        type: integer
+      user_reaction:
+        type: string
+    type: object
+  suggestions.NextResponse:
+    properties:
+      finished:
+        type: boolean
+      has_more:
+        type: boolean
+      message:
+        type: string
+      next_tmdb_id:
+        type: integer
+      regeneration:
+        type: boolean
+      suggestion:
+        $ref: '#/definitions/suggestions.MovieDetails'
+    type: object
+  watched.AddToWatchedRequest:
+    properties:
+      tmdb_ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - tmdb_ids
+    type: object
+  watched.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  watched.GetWatchedIDsResponse:
+    properties:
+      tmdb_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  watched.GetWatchedResponse:
+    properties:
+      limit:
+        type: integer
+      movies:
+        items:
+          $ref: '#/definitions/watched.WatchedMovie'
+        type: array
+      next_cursor:
+        type: string
+      total_count:
+        type: integer
+    type: object
+  watched.WatchedMovie:
+    properties:
+      added_at:
+        type: string
+      genres:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      movie_db_id:
+        type: integer
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+    type: object
+  watchlist.AddToWatchlistRequest:
+    properties:
+      tmdb_ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - tmdb_ids
+    type: object
+  watchlist.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  watchlist.GetWatchlistIDsResponse:
+    properties:
+      tmdb_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  watchlist.GetWatchlistResponse:
+    properties:
+      limit:
+        type: integer
+      movies:
+        items:
+          $ref: '#/definitions/watchlist.WatchlistMovie'
+        type: array
+      next_cursor:
+        type: string
+      total_count:
+        type: integer
+    type: object
+  watchlist.WatchlistMovie:
+    properties:
+      added_at:
+        type: string
+      genres:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      movie_db_id:
+        type: integer
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+    type: object
+  weekly_suggestions.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  weekly_suggestions.Movie:
+    properties:
+      genres:
+        items:
+          type: string
+        type: array
+      match_reason:
+        type: string
+      poster_url:
+        type: string
+      release_year:
+        type: integer
+      title:
+        type: string
+      tmdb_id:
+        type: integer
+      tmdb_rating:
+        type: integer
+    type: object
+  weekly_suggestions.WeeklySuggestionResponse:
+    properties:
+      already_generated:
+        type: boolean
+      generated_at:
+        type: string
+      suggestions:
+        items:
+          $ref: '#/definitions/weekly_suggestions.Movie'
+        type: array
+      week_start:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@cinematch.com
+    name: API Support
+  description: Backend API for CineMatch movie platform
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: CineMatch API
+  version: "1.0"
+paths:
+  /v1/auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Sends password reset email with token link
+      parameters:
+      - description: Forgot password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reset email sent
+          schema:
+            $ref: '#/definitions/auth.ForgotPasswordResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Request password reset
+      tags:
+      - auth
+  /v1/auth/init-verify:
+    post:
+      consumes:
+      - application/json
+      description: Sends new verification OTP to logged-in user who hasn't verified
+        their email
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.InitVerifyResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Initiate email verification
+      tags:
+      - auth
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates user with email and password, creates session
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Account locked
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates user session and clears refresh token cookie
+      parameters:
+      - description: Logout request
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/auth.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+      summary: Logout user
+      tags:
+      - auth
+  /v1/auth/refresh:
+    post:
+      description: Validates refresh token from HTTP-only cookie and issues new access
+        token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token
+          schema:
+            $ref: '#/definitions/auth.RefreshTokenResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Refresh access token
+      tags:
+      - auth
+  /v1/auth/resend:
+    post:
+      consumes:
+      - application/json
+      description: Resends verification OTP for unverified users (signup flow)
+      parameters:
+      - description: Resend verification request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResendVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification code sent
+          schema:
+            $ref: '#/definitions/auth.ResendVerificationResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Cooldown active
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Resend signup verification code
+      tags:
+      - auth
+  /v1/auth/resend-reset:
+    post:
+      consumes:
+      - application/json
+      description: Resends password reset link for users who didn't receive it
+      parameters:
+      - description: Resend reset request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResendResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reset email sent
+          schema:
+            $ref: '#/definitions/auth.ResendResetResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Cooldown active
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Resend password reset email
+      tags:
+      - auth
+  /v1/auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Resets user password using token from email link
+      parameters:
+      - description: Reset password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successful
+          schema:
+            $ref: '#/definitions/auth.ResetPasswordResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Invalid or expired token
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Max attempts reached
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Reset password
+      tags:
+      - auth
+  /v1/auth/sessions:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a session by ID. If magic_link is provided, performs magic
+        link flow.
+      parameters:
+      - description: Delete session request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.DeleteSessionRequest'
+      - description: Magic link for session management (alternative to Bearer token)
+        in: query
+        name: magic_link
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.DeleteSessionResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "404":
+          description: Session not found
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete session
+      tags:
+      - auth
+    get:
+      consumes:
+      - application/json
+      description: Returns all active sessions for the authenticated user. Accepts
+        either Bearer token or magic link.
+      parameters:
+      - description: Magic link for session management (alternative to Bearer token)
+        in: query
+        name: magic_link
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.GetSessionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all sessions
+      tags:
+      - auth
+  /v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and sends verification OTP via email
+      parameters:
+      - description: Signup request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created, verification required
+          schema:
+            $ref: '#/definitions/auth.SignupResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /v1/auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies user email with OTP or token from email link
+      parameters:
+      - description: Verification request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.VerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email verified
+          schema:
+            $ref: '#/definitions/auth.VerifyResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Invalid or expired token
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "429":
+          description: Max attempts reached
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Verify email
+      tags:
+      - auth
+  /v1/export:
+    post:
+      consumes:
+      - application/json
+      description: Generates and sends a data export via email
+      parameters:
+      - description: Data to include in export
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/export.ExportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/export.ExportResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/export.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/export.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Request data export
+      tags:
+      - export
+  /v1/favorites:
+    get:
+      description: Returns paginated list of user's favorite movies
+      parameters:
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Number of items
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by genre
+        in: query
+        name: genre
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/favorites.GetFavoritesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user's favorites
+      tags:
+      - favorites
+    post:
+      consumes:
+      - application/json
+      description: Adds movies to user's favorites
+      parameters:
+      - description: TMDB IDs to add
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/favorites.AddFavoritesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/favorites.AddFavoritesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add movies to favorites
+      tags:
+      - favorites
+  /v1/favorites/{id}:
+    delete:
+      description: Removes a movie from user's favorites
+      parameters:
+      - description: User Movies ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove movie from favorites
+      tags:
+      - favorites
+  /v1/favorites/ids:
+    get:
+      description: Returns all TMDB IDs that user has favorited
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/favorites.GetFavoriteIDsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all favorite TMDB IDs
+      tags:
+      - favorites
+  /v1/favorites/search:
+    get:
+      description: Searches within user's favorite movies
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/favorites.GetFavoritesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/favorites.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search within favorites
+      tags:
+      - favorites
+  /v1/genres:
+    get:
+      description: Returns all available movie genres
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genres.GenresListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all genres
+      tags:
+      - genres
+  /v1/genres/{genreId}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a single genre from user's selected genres
+      parameters:
+      - description: Genre ID
+        in: path
+        name: genreId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a genre from user's preferences
+      tags:
+      - genres
+    post:
+      description: Adds a single genre to user's selected genres
+      parameters:
+      - description: Genre ID
+        in: path
+        name: genreId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add a genre to user's preferences
+      tags:
+      - genres
+  /v1/genres/mine:
+    get:
+      description: Returns genres selected by the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genres.UserGenresListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/genres.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user's preferred genres
+      tags:
+      - genres
+  /v1/movies/{tmdb_id}:
+    get:
+      consumes:
+      - application/json
+      description: Gets detailed movie info with credits and watch providers by TMDB
+        ID
+      parameters:
+      - description: TMDB Movie ID
+        in: path
+        name: tmdb_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/movies.MovieDetailsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get movie details
+      tags:
+      - movies
+  /v1/movies/{tmdb_id}/reviews:
+    get:
+      consumes:
+      - application/json
+      description: Gets reviews for a movie with hybrid cursor pagination (DB + TMDB)
+      parameters:
+      - description: TMDB Movie ID
+        in: path
+        name: tmdb_id
+        required: true
+        type: integer
+      - description: Pagination cursor
+        in: query
+        name: cursor
+        type: string
+      - default: 10
+        description: Number of results
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reviews.ReviewsListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get movie reviews
+      tags:
+      - reviews
+  /v1/movies/{tmdb_id}/videos:
+    get:
+      consumes:
+      - application/json
+      description: Gets movie videos (trailers, teasers, etc.) by TMDB ID
+      parameters:
+      - description: TMDB Movie ID
+        in: path
+        name: tmdb_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/movies.VideosResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get movie videos
+      tags:
+      - movies
+  /v1/movies/search:
+    get:
+      consumes:
+      - application/json
+      description: Searches movies via TMDB, caches results
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/movies.SearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search movies
+      tags:
+      - movies
+  /v1/movies/trending:
+    get:
+      consumes:
+      - application/json
+      description: Fetches trending movies from TMDB, caches results
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/movies.TrendingResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/movies.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get trending movies
+      tags:
+      - movies
+  /v1/profile/disable:
+    put:
+      consumes:
+      - application/json
+      description: Temporarily disables user account for specified duration
+      parameters:
+      - description: Disable account request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.DisableAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.DisableAccountResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Disable account
+      tags:
+      - profile
+  /v1/profile/email/change:
+    post:
+      consumes:
+      - application/json
+      description: Starts the email change flow by sending OTP to old email
+      parameters:
+      - description: New email address
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.InitiateEmailChangeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.EmailChangeStepResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "409":
+          description: Email already in use
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Initiate email change
+      tags:
+      - profile
+  /v1/profile/email/resend:
+    post:
+      consumes:
+      - application/json
+      description: Resends OTP for email change flow
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.ResendEmailChangeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "429":
+          description: Cooldown active
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Resend email change OTP
+      tags:
+      - profile
+  /v1/profile/me:
+    delete:
+      consumes:
+      - application/json
+      description: Soft-deletes the user account permanently
+      parameters:
+      - description: Delete account request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.DeleteAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.DeleteAccountResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete account
+      tags:
+      - profile
+    get:
+      description: Returns the profile of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.GetProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - profile
+    put:
+      consumes:
+      - multipart/form-data
+      description: Updates name and/or profile picture for the authenticated user
+      parameters:
+      - description: Display name
+        in: formData
+        name: name
+        type: string
+      - description: Profile picture (max 5MB)
+        in: formData
+        name: profile_picture
+        type: file
+      - description: Enable smart suggestions
+        in: formData
+        name: smartSuggest
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.UpdateProfileResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - profile
+  /v1/profile/me/picture:
+    delete:
+      consumes:
+      - application/json
+      description: Removes the authenticated user's profile picture
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.DeleteProfilePictureResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "404":
+          description: No profile picture to delete
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete profile picture
+      tags:
+      - profile
+  /v1/profile/password:
+    put:
+      consumes:
+      - application/json
+      description: Verifies old password and updates to new password
+      parameters:
+      - description: Password change request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.ChangePasswordResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "401":
+          description: Invalid old password
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - profile
+  /v1/profile/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies email change with OTP
+      parameters:
+      - description: OTP verification request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.VerifyEmailResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "401":
+          description: Invalid OTP or expired
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "429":
+          description: Max attempts reached
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/profile.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Verify email change
+      tags:
+      - profile
+  /v1/reactions:
+    post:
+      consumes:
+      - application/json
+      description: Record user's reaction (like/dislike/hate/love/skip) to any movie
+        and update reaction counts
+      parameters:
+      - description: Reaction details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reactions.AddReactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reactions.AddReactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/reactions.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/reactions.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/reactions.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/reactions.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add reaction to movie
+      tags:
+      - reactions
+  /v1/reviews:
+    get:
+      consumes:
+      - application/json
+      description: Gets reviews for the authenticated user with cursor pagination
+      parameters:
+      - description: Pagination cursor
+        in: query
+        name: cursor
+        type: string
+      - default: 10
+        description: Number of results
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reviews.ReviewsListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user's reviews
+      tags:
+      - reviews
+    post:
+      consumes:
+      - application/json
+      description: Creates a new review for a movie
+      parameters:
+      - description: Review data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/reviews.CreateReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/reviews.ReviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a review
+      tags:
+      - reviews
+  /v1/reviews/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a review by ID
+      parameters:
+      - description: Review ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a review
+      tags:
+      - reviews
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing review (rating and/or comment)
+      parameters:
+      - description: Review ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/reviews.UpdateReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/reviews.ReviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/reviews.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a review
+      tags:
+      - reviews
+  /v1/streaming-services:
+    get:
+      consumes:
+      - application/json
+      description: Returns paginated list of streaming services from the master table
+      parameters:
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Number of items
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/streaming_services.StreamingServicesListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all streaming services
+      tags:
+      - streaming-services
+    put:
+      consumes:
+      - application/json
+      description: Replaces user's streaming services with the provided list
+      parameters:
+      - description: List of streaming service IDs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/streaming_services.UpdateStreamingServicesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user's streaming services (bulk)
+      tags:
+      - streaming-services
+  /v1/streaming-services/{serviceId}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a single streaming service from user's selected services
+      parameters:
+      - description: Streaming service ID to remove
+        in: path
+        name: serviceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a streaming service from user's profile
+      tags:
+      - streaming-services
+  /v1/streaming-services/bulk:
+    delete:
+      consumes:
+      - application/json
+      description: Removes multiple streaming services from user's selected services
+      parameters:
+      - description: List of streaming service IDs to remove
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/streaming_services.UpdateStreamingServicesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove multiple streaming services from user's profile
+      tags:
+      - streaming-services
+  /v1/streaming-services/mine:
+    get:
+      consumes:
+      - application/json
+      description: Returns the streaming services selected by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/streaming_services.UserStreamingServicesListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user's selected streaming services
+      tags:
+      - streaming-services
+  /v1/streaming-services/search:
+    get:
+      consumes:
+      - application/json
+      description: Searches streaming services by name with pagination
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Number of items
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/streaming_services.SearchStreamingServicesResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/streaming_services.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search streaming services
+      tags:
+      - streaming-services
+  /v1/suggestion-tries/generate:
+    get:
+      consumes:
+      - application/json
+      description: Returns 5 movie suggestions. User has 3 tries per week (resets
+        every Sunday IST).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/suggestion_tries.SuggestionTriesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+        "422":
+          description: Minimum favorites not met
+          schema:
+            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+        "429":
+          description: Weekly tries exhausted
+          schema:
+            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate movie suggestions with weekly tries
+      tags:
+      - suggestion-tries
+  /v1/suggestions/generate:
+    get:
+      consumes:
+      - application/json
+      description: Returns 1-2 movies with full details. Checks old logs first, then
+        today's log.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/suggestions.GenerateSuggestionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+        "422":
+          description: Minimum favorites not met
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate or resume movie suggestions
+      tags:
+      - suggestions
+  /v1/suggestions/next:
+    get:
+      consumes:
+      - application/json
+      description: Returns next movie with full details based on current tmdb_id
+      parameters:
+      - description: Current movie TMDB ID
+        in: query
+        name: tmdb_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/suggestions.NextResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/suggestions.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get next movie suggestion
+      tags:
+      - suggestions
+  /v1/watched:
+    get:
+      description: Returns paginated list of user's watched movies
+      parameters:
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Number of items
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by genre
+        in: query
+        name: genre
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/watched.GetWatchedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user's watched movies
+      tags:
+      - watched
+    post:
+      consumes:
+      - application/json
+      description: Adds one or more movies to user's watched list
+      parameters:
+      - description: Movies to add
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/watched.AddToWatchedRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add movies to watched
+      tags:
+      - watched
+  /v1/watched/{id}:
+    delete:
+      description: Removes a movie from user's watched list
+      parameters:
+      - description: Watched item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove movie from watched
+      tags:
+      - watched
+  /v1/watched/ids:
+    get:
+      description: Returns all TMDB IDs that user has watched
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/watched.GetWatchedIDsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all watched TMDB IDs
+      tags:
+      - watched
+  /v1/watched/search:
+    get:
+      description: Searches within user's watched list by title
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/watched.GetWatchedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watched.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search user's watched list
+      tags:
+      - watched
+  /v1/watchlist:
+    get:
+      description: Returns paginated list of user's watchlist movies
+      parameters:
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Number of items
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by genre
+        in: query
+        name: genre
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/watchlist.GetWatchlistResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user's watchlist
+      tags:
+      - watchlist
+    post:
+      consumes:
+      - application/json
+      description: Adds one or more movies to user's watchlist
+      parameters:
+      - description: Movies to add
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/watchlist.AddToWatchlistRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add movies to watchlist
+      tags:
+      - watchlist
+  /v1/watchlist/{id}:
+    delete:
+      description: Removes a movie from user's watchlist
+      parameters:
+      - description: Watchlist item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove movie from watchlist
+      tags:
+      - watchlist
+  /v1/watchlist/ids:
+    get:
+      description: Returns all TMDB IDs that user has in watchlist
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/watchlist.GetWatchlistIDsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all watchlist TMDB IDs
+      tags:
+      - watchlist
+  /v1/watchlist/search:
+    get:
+      description: Searches within user's watchlist by title
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/watchlist.GetWatchlistResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/watchlist.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search user's watchlist
+      tags:
+      - watchlist
+  /v1/weekly-suggestions:
+    get:
+      consumes:
+      - application/json
+      description: Returns 5 movie suggestions for the current week (Sunday to Saturday)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/weekly_suggestions.WeeklySuggestionResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/weekly_suggestions.ErrorResponse'
+        "422":
+          description: Minimum favorites not met
+          schema:
+            $ref: '#/definitions/weekly_suggestions.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/weekly_suggestions.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get weekly movie suggestions
+      tags:
+      - weekly-suggestions
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by your access token (e.g., "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

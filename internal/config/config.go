@@ -1,31 +1,32 @@
 package config
 
 import (
-	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
 )
 
 type Config struct {
-	Port          string
+	Port           string
 	AllowedOrigins []string
+	Environment    string
 }
 
 var App Config
 
 func Load() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found — using environment variables")
+		logger.Debug("No .env file found — using environment variables")
 	}
 
-	// Server port - default to 8080 in development, use environment variable
+	// Environment
+	App.Environment = getEnv("ENVIRONMENT", "development")
 	App.Port = getEnv("PORT", "8080")
-	
+
 	// CORS allowed origins - comma-separated in env
-	originsStr := getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+	originsStr := getEnv("ALLOWED_ORIGINS", "http://localhost:3000")
 	App.AllowedOrigins = parseOrigins(originsStr)
 }
 
@@ -45,13 +46,4 @@ func parseOrigins(origins string) []string {
 		}
 	}
 	return result
-}
-
-func getEnvInt(key string, defaultValue int) int {
-	if value := os.Getenv(key); value != "" {
-		if intVal, err := strconv.Atoi(value); err == nil {
-			return intVal
-		}
-	}
-	return defaultValue
 }
