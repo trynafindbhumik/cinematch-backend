@@ -41,7 +41,7 @@ func LoadEmailConfig() {
 
 // SendVerificationEmail sends a verification email with OTP and link
 func SendVerificationEmail(to, otp, verificationID, token string) error {
-	link := fmt.Sprintf("https://cinematch.com/verify?id=%s&token=%s", verificationID, token)
+	link := fmt.Sprintf("https://cinematchh.vercel.app/verify?id=%s&token=%s", verificationID, token)
 	body := fmt.Sprintf(`
 		<h1>Welcome to CineMatch!</h1>
 		<p>Your verification code is: <strong>%s</strong></p>
