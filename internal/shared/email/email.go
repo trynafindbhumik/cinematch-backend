@@ -1,12 +1,14 @@
 package email
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"os"
 	"strconv"
 	"sync"
 
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
 	"gopkg.in/mail.v2"
 )
 
@@ -78,9 +80,16 @@ func getEnvBool(key string, defaultVal bool) bool {
 }
 
 type EmailData struct {
-	To      string
-	Subject string
-	Body    string
+	To         string
+	Subject    string
+	Body       string
+	Attachment *Attachment // Optional attachment
+}
+
+type Attachment struct {
+	Filename string
+	MimeType string
+	Data     []byte
 }
 
 var dialer *mail.Dialer
@@ -106,12 +115,14 @@ func getDialer() *mail.Dialer {
 func SendEmail(email EmailData) error {
 	// Check if email is enabled
 	if !emailCfg.Enabled {
-		fmt.Printf("Email: Disabled, skipping send to %s\n", email.To)
+		logger.Debug("Email disabled, skipping send",
+			logger.String("to", email.To),
+		)
 		return nil
 	}
 
 	if emailCfg.SMTPUsername == "" || emailCfg.SMTPPassword == "" {
-		fmt.Println("Email: SMTP not configured, skipping email send")
+		logger.Warn("SMTP not configured, skipping email send")
 		return nil
 	}
 
@@ -120,6 +131,11 @@ func SendEmail(email EmailData) error {
 	m.SetHeader("To", email.To)
 	m.SetHeader("Subject", email.Subject)
 	m.SetBody("text/html", email.Body)
+
+	// Add attachment if provided
+	if email.Attachment != nil {
+		m.AttachReader(email.Attachment.Filename, bytes.NewReader(email.Attachment.Data), mail.SetHeader(map[string][]string{"Content-Type": {email.Attachment.MimeType}}))
+	}
 
 	d := getDialer()
 	if err := d.DialAndSend(m); err != nil {
@@ -133,7 +149,10 @@ func SendEmail(email EmailData) error {
 func SendEmailAsync(email EmailData) {
 	go func() {
 		if err := SendEmail(email); err != nil {
-			fmt.Printf("Async email send failed to %s: %v\n", email.To, err)
+			logger.Error("Async email send failed",
+				logger.String("to", email.To),
+				logger.Err(err),
+			)
 		}
 	}()
 }

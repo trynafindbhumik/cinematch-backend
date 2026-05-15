@@ -8,6 +8,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
 )
 
 //go:embed migrations/*.sql
@@ -36,7 +37,7 @@ func RunMigrations() error {
 	defer func() {
 		_, err := m.Close()
 		if err != nil {
-			fmt.Printf("error closing migration: %v\n", err)
+			logger.Error("Migration close error", logger.Err(err))
 		}
 	}()
 

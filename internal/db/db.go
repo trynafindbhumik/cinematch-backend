@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
 )
 
 var pool *pgxpool.Pool
@@ -17,6 +18,11 @@ func Pool() *pgxpool.Pool {
 		panic("database not connected — call db.Connect() first")
 	}
 	return pool
+}
+
+// GetDB returns the database pool (alias for Pool for compatibility)
+func GetDB() *pgxpool.Pool {
+	return Pool()
 }
 
 func Connect(ctx context.Context) error {
@@ -31,12 +37,8 @@ func Connect(ctx context.Context) error {
 	cfg.MaxConnIdleTime = 30 * time.Minute
 	cfg.HealthCheckPeriod = 1 * time.Minute
 
-	// ✅ Best practice
-	if os.Getenv("APP_ENV") == "production" {
-		cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeCacheDescribe
-	} else {
-		cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
-	}
+	// Always use extended protocol for compatibility with Supabase pooler
+	cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeCacheDescribe
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -52,7 +54,10 @@ func Connect(ctx context.Context) error {
 
 	pool = p
 
-	fmt.Println("DB connected successfully!")
+	logger.Info("Database connected successfully",
+		logger.Int32("max_conns", cfg.MaxConns),
+		logger.Int32("min_conns", cfg.MinConns),
+	)
 	return nil
 }
 
