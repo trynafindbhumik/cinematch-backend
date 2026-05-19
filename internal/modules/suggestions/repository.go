@@ -2,11 +2,11 @@ package suggestions
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/lib/pq"
+	"github.com/jackc/pgx/v5"
 	"github.com/trynafindbhumik/cinematch-backend/internal/db"
 )
 
@@ -24,7 +24,7 @@ func NewRepository() *Repository {
 
 func (r *Repository) GetFavoriteMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at
+		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at::text
 		FROM user_movies um
 		JOIN movies m ON um.movie_id = m.id
 		WHERE um.user_id = $1 AND um.is_favorite = true
@@ -63,7 +63,7 @@ func (r *Repository) GetFavoriteCount(ctx context.Context, userID int64) (int, e
 
 func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at
+		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at::text
 		FROM user_movies um
 		JOIN movies m ON um.movie_id = m.id
 		WHERE um.user_id = $1 AND um.status = 'watchlist'
@@ -90,7 +90,7 @@ func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]Fa
 
 func (r *Repository) GetReactions(ctx context.Context, userID int64) ([]Reaction, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT ur.movie_id, m.tmdb_id, m.title, ur.reaction, ur.created_at
+		SELECT ur.movie_id, m.tmdb_id, m.title, ur.reaction, ur.created_at::text
 		FROM user_reaction ur
 		JOIN movies m ON ur.movie_id = m.id
 		WHERE ur.user_id = $1
@@ -344,9 +344,9 @@ func (r *Repository) FindOldLogWithMovieIDs(ctx context.Context, userID int64) (
 	`, userID)
 
 	var log GenerationLog
-	err := row.Scan(&log.ID, &log.UserID, &log.Date, pq.Array(&log.MovieIDs), &log.CreatedAt)
+	err := row.Scan(&log.ID, &log.UserID, &log.Date, &log.MovieIDs, &log.CreatedAt)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find old log: %w", err)
@@ -363,9 +363,9 @@ func (r *Repository) GetLogByDate(ctx context.Context, userID int64, date string
 	`, userID, date)
 
 	var log GenerationLog
-	err := row.Scan(&log.ID, &log.UserID, &log.Date, pq.Array(&log.MovieIDs), &log.CreatedAt)
+	err := row.Scan(&log.ID, &log.UserID, &log.Date, &log.MovieIDs, &log.CreatedAt)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get log: %w", err)
@@ -382,9 +382,9 @@ func (r *Repository) GetTodayLog(ctx context.Context, userID int64) (*Generation
 	`, userID)
 
 	var log GenerationLog
-	err := row.Scan(&log.ID, &log.UserID, &log.Date, pq.Array(&log.MovieIDs), &log.CreatedAt)
+	err := row.Scan(&log.ID, &log.UserID, &log.Date, &log.MovieIDs, &log.CreatedAt)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get today's log: %w", err)
@@ -428,9 +428,9 @@ func (r *Repository) GetFirstMovieIDs(ctx context.Context, userID int64, date st
 	`, userID, date)
 
 	var movieIDs []int
-	err := row.Scan(pq.Array(&movieIDs))
+	err := row.Scan(&movieIDs)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get movie ids: %w", err)
@@ -452,7 +452,7 @@ func (r *Repository) GetNextTMDBID(ctx context.Context, userID int64, date strin
 	`, userID, date)
 
 	var movieIDs []int
-	err := row.Scan(pq.Array(&movieIDs))
+	err := row.Scan(&movieIDs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get movie ids: %w", err)
 	}

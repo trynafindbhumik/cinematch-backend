@@ -47,7 +47,7 @@ func (h *Handler) GenerateSuggestions(c *gin.Context) {
 			c.JSON(http.StatusUnprocessableEntity, ErrorResponse{Error: err.Error()})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "failed to generate suggestions"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
 

@@ -12,6 +12,7 @@ import (
 )
 
 const minFavorites = 5
+const minReactions = 20
 const numWeeklySuggestions = 5
 
 const weeklySystemPrompt = `You are a film recommendation expert with deep knowledge of global cinema — English, Hindi, Tamil, Telugu, Bengali, Korean, Japanese, French, German, Spanish, Chinese, and all other major film industries. You understand film history, directorial styles, acting styles, and what makes a movie memorable.
@@ -81,6 +82,16 @@ func (s *Service) generateWeeklySuggestions(ctx context.Context, userID int64, w
 	if favCount < minFavorites {
 		log.Warn("insufficient favorites", logger.Int("fav_count", favCount), logger.Int("required", minFavorites))
 		return nil, fmt.Errorf("at least %d favorite movies required", minFavorites)
+	}
+
+	reactionCount, err := s.repo.GetReactionCount(ctx, userID)
+	if err != nil {
+		log.Error("failed to count reactions", logger.Err(err))
+		return nil, fmt.Errorf("failed to count reactions: %w", err)
+	}
+	if reactionCount < minReactions {
+		log.Warn("insufficient reactions", logger.Int("reaction_count", reactionCount), logger.Int("required", minReactions))
+		return nil, fmt.Errorf("at least %d movie reactions required", minReactions)
 	}
 
 	favorites, err := s.repo.GetFavoriteMovies(ctx, userID)
