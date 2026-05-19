@@ -188,6 +188,19 @@ func (r *Repository) GetFavoriteCount(ctx context.Context, userID int64) (int, e
 	return count, nil
 }
 
+// GetReactionCount returns count of user's reactions
+func (r *Repository) GetReactionCount(ctx context.Context, userID int64) (int, error) {
+	var count int
+	err := db.Pool().QueryRow(ctx, `
+		SELECT COUNT(*) FROM user_reaction
+		WHERE user_id = $1
+	`, userID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count reactions: %w", err)
+	}
+	return count, nil
+}
+
 // GetWatchlistMovies returns user's watchlist movies
 func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `

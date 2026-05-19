@@ -29,7 +29,9 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) setRefreshCookie(c *gin.Context, token string, maxAge int) {
 	secure := config.App.Environment == "production"
 
-	if !secure {
+	if secure {
+		c.SetSameSite(http.SameSiteNoneMode)
+	} else {
 		c.SetSameSite(http.SameSiteLaxMode)
 	}
 	c.SetCookie(

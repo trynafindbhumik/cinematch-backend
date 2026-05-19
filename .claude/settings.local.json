@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go build *)",
+      "Bash(curl -s -X 'GET' 'http://localhost:8080/v1/movies/550/reviews?limit=10' -H 'accept: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxNCwiZW1haWwiOiJjaGVlbWRhLm1hbjI4QGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaXNfdmVyaWZpZWQiOmZhbHNlLCJpc19maXJzdF9sb2dpbiI6dHJ1ZSwianRpIjoiNTkwODkwZjMtMmZlZC00Njk0LThiN2EtM2E1MThiMjBhZTE0IiwiaXNzIjoiY2luZW1hdGNoIiwiZXhwIjoxNzc3NzI2NjMzLCJpYXQiOjE3Nzc3MjU3MzN9.cjOETdUKg3LRQoynPiH9ha9kdSkGGAv1SutMT41EtgQ')",
+      "Bash(PGPASSWORD=postgres psql -h localhost -U postgres -d cinematch -c \"SELECT id, user_id, refresh_token_hash, expires_at FROM sessions WHERE user_id = 48 ORDER BY created_at DESC LIMIT 2;\")"
+    ]
+  }
+}
