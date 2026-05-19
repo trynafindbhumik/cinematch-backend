@@ -14,12 +14,18 @@ import (
 
 const (
 	minFavorites              = 5
+	minReactions              = 20
 	numSuggestions            = 5
 	ErrWeeklyLimitExhausted   = "weekly limit exhausted"
-	ErrMinFavoritesRequired    = "at least %d favorite movies required"
+	ErrMinFavoritesRequired   = "at least %d favorite movies required"
+	ErrMinReactionsRequired   = "at least %d movie reactions required"
 )
 
 var errWeeklyLimitExhausted = errors.New(ErrWeeklyLimitExhausted)
+
+func errMinReactionsFmt(required int) error {
+	return fmt.Errorf(ErrMinReactionsRequired, required)
+}
 
 const systemPrompt = `You are a film recommendation expert with deep knowledge of global cinema — English, Hindi, Tamil, Telugu, Bengali, Korean, Japanese, French, German, Spanish, Chinese, and all other major film industries. You understand film history, directorial styles, acting styles, and what makes a movie memorable.
 
@@ -76,6 +82,16 @@ func (s *Service) GenerateSuggestions(ctx context.Context, userID int64) (*Gener
 	if favCount < minFavorites {
 		log.Warn("insufficient favorites", logger.Int("fav_count", favCount), logger.Int("required", minFavorites))
 		return nil, fmt.Errorf(ErrMinFavoritesRequired, minFavorites)
+	}
+
+	reactionCount, err := s.repo.GetReactionCount(ctx, userID)
+	if err != nil {
+		log.Error("failed to count reactions", logger.Err(err))
+		return nil, fmt.Errorf("failed to count reactions: %w", err)
+	}
+	if reactionCount < minReactions {
+		log.Warn("insufficient reactions", logger.Int("reaction_count", reactionCount), logger.Int("required", minReactions))
+		return nil, errMinReactionsFmt(minReactions)
 	}
 
 	suggestionID, err := s.repo.CreateSuggestion(ctx, userID, weekStart, newIndex)
