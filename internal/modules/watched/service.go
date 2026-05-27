@@ -113,15 +113,14 @@ func (s *Service) AddToWatched(ctx context.Context, userID int64, req *AddToWatc
 		}
 	}
 
-	// Declare these outside the if/else so they're accessible later
-	var moviesToUpsert []movie_collection.MovieInput
-	var tmdbIDToDBID map[int]int
+	// moviesToUpsert and tmdbIDToDBID now declared outside if/else
+	moviesToUpsert := make([]movie_collection.MovieInput, 0, len(notInDB))
+	tmdbIDToDBID := make(map[int]int)
 
 	if len(notInDB) == 0 {
 		// All movies already in DB, still need to add to user_movies
 	} else {
 		// Step 2: For movies not in DB, check cache
-		moviesToUpsert := make([]movie_collection.MovieInput, 0, len(notInDB))
 		for _, tmdbID := range notInDB {
 			cachedMovie, err := s.cache.GetMovie(ctx, tmdbID)
 			if err == nil && cachedMovie != nil && len(cachedMovie.Genres) > 0 {
