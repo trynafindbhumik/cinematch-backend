@@ -19,14 +19,14 @@ import (
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/genres"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/movies"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/profile"
+	"github.com/trynafindbhumik/cinematch-backend/internal/modules/reactions"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/reviews"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/streaming_services"
-	"github.com/trynafindbhumik/cinematch-backend/internal/modules/suggestions"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/suggestion_tries"
+	"github.com/trynafindbhumik/cinematch-backend/internal/modules/suggestions"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/watched"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/watchlist"
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/weekly_suggestions"
-	"github.com/trynafindbhumik/cinematch-backend/internal/modules/reactions"
 	"github.com/trynafindbhumik/cinematch-backend/internal/routes"
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/cloudinary"
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/email"
@@ -53,8 +53,9 @@ import (
 //	@name						Authorization
 //	@description				Type "Bearer" followed by your access token (e.g., "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
 
-//	@host		localhost:8080
+//	@host		cinematch-backend-6m8y.onrender.com
 //	@basePath	/
+//	@schemes	https
 
 func main() {
 	// Load config from environment
