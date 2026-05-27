@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  auth.DeleteSessionRequest:
+  internal_modules_auth.DeleteSessionRequest:
     properties:
       magic_link:
         type: string
@@ -9,7 +9,7 @@ definitions:
     required:
     - session_id
     type: object
-  auth.DeleteSessionResponse:
+  internal_modules_auth.DeleteSessionResponse:
     properties:
       access_token:
         type: string
@@ -18,35 +18,35 @@ definitions:
       needs_onboarding:
         type: boolean
     type: object
-  auth.ErrorResponse:
+  internal_modules_auth.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  auth.ForgotPasswordRequest:
+  internal_modules_auth.ForgotPasswordRequest:
     properties:
       email:
         type: string
     required:
     - email
     type: object
-  auth.ForgotPasswordResponse:
+  internal_modules_auth.ForgotPasswordResponse:
     properties:
       message:
         type: string
     type: object
-  auth.GetSessionsResponse:
+  internal_modules_auth.GetSessionsResponse:
     properties:
       sessions:
         items:
-          $ref: '#/definitions/auth.SessionResponse'
+          $ref: '#/definitions/internal_modules_auth.SessionResponse'
         type: array
       total:
         type: integer
     type: object
-  auth.InitVerifyResponse:
+  internal_modules_auth.InitVerifyResponse:
     properties:
       email:
         type: string
@@ -57,7 +57,7 @@ definitions:
       verification_id:
         type: string
     type: object
-  auth.LoginRequest:
+  internal_modules_auth.LoginRequest:
     properties:
       email:
         type: string
@@ -67,7 +67,7 @@ definitions:
     - email
     - password
     type: object
-  auth.LoginResponse:
+  internal_modules_auth.LoginResponse:
     properties:
       access_token:
         type: string
@@ -82,33 +82,33 @@ definitions:
       needs_onboarding:
         type: boolean
     type: object
-  auth.LogoutRequest:
+  internal_modules_auth.LogoutRequest:
     type: object
-  auth.RefreshTokenResponse:
+  internal_modules_auth.RefreshTokenResponse:
     properties:
       access_token:
         type: string
     type: object
-  auth.ResendResetRequest:
+  internal_modules_auth.ResendResetRequest:
     properties:
       email:
         type: string
     required:
     - email
     type: object
-  auth.ResendResetResponse:
+  internal_modules_auth.ResendResetResponse:
     properties:
       message:
         type: string
     type: object
-  auth.ResendVerificationRequest:
+  internal_modules_auth.ResendVerificationRequest:
     properties:
       email:
         type: string
     required:
     - email
     type: object
-  auth.ResendVerificationResponse:
+  internal_modules_auth.ResendVerificationResponse:
     properties:
       expires_at:
         type: integer
@@ -117,7 +117,7 @@ definitions:
       verification_id:
         type: string
     type: object
-  auth.ResetPasswordRequest:
+  internal_modules_auth.ResetPasswordRequest:
     properties:
       new_password:
         minLength: 8
@@ -128,12 +128,12 @@ definitions:
     - new_password
     - token
     type: object
-  auth.ResetPasswordResponse:
+  internal_modules_auth.ResetPasswordResponse:
     properties:
       message:
         type: string
     type: object
-  auth.SessionResponse:
+  internal_modules_auth.SessionResponse:
     properties:
       created_at:
         type: string
@@ -141,12 +141,14 @@ definitions:
         type: string
       id:
         type: string
+      is_current:
+        type: boolean
       last_login:
         type: string
       user_agent:
         type: string
     type: object
-  auth.SignupRequest:
+  internal_modules_auth.SignupRequest:
     properties:
       email:
         type: string
@@ -161,14 +163,14 @@ definitions:
     - name
     - password
     type: object
-  auth.SignupResponse:
+  internal_modules_auth.SignupResponse:
     properties:
       message:
         type: string
       verification_id:
         type: string
     type: object
-  auth.VerifyRequest:
+  internal_modules_auth.VerifyRequest:
     properties:
       otp:
         type: string
@@ -177,7 +179,7 @@ definitions:
       verification_id:
         type: string
     type: object
-  auth.VerifyResponse:
+  internal_modules_auth.VerifyResponse:
     properties:
       access_token:
         type: string
@@ -190,12 +192,12 @@ definitions:
       needs_onboarding:
         type: boolean
     type: object
-  export.ErrorResponse:
+  internal_modules_export.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  export.ExportRequest:
+  internal_modules_export.ExportRequest:
     properties:
       favorites:
         type: boolean
@@ -210,12 +212,12 @@ definitions:
       watchlist:
         type: boolean
     type: object
-  export.ExportResponse:
+  internal_modules_export.ExportResponse:
     properties:
       message:
         type: string
     type: object
-  favorites.AddFavoritesRequest:
+  internal_modules_favorites.AddFavoritesRequest:
     properties:
       tmdb_ids:
         items:
@@ -225,7 +227,7 @@ definitions:
     required:
     - tmdb_ids
     type: object
-  favorites.AddFavoritesResponse:
+  internal_modules_favorites.AddFavoritesResponse:
     properties:
       added:
         items:
@@ -242,14 +244,14 @@ definitions:
       total_failed:
         type: integer
     type: object
-  favorites.ErrorResponse:
+  internal_modules_favorites.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  favorites.FavoriteMovie:
+  internal_modules_favorites.FavoriteMovie:
     properties:
       added_at:
         type: string
@@ -272,18 +274,18 @@ definitions:
       tmdb_rating:
         type: integer
     type: object
-  favorites.GetFavoriteIDsResponse:
+  internal_modules_favorites.GetFavoriteIDsResponse:
     properties:
       tmdb_ids:
         items:
           type: integer
         type: array
     type: object
-  favorites.GetFavoritesResponse:
+  internal_modules_favorites.GetFavoritesResponse:
     properties:
       favorites:
         items:
-          $ref: '#/definitions/favorites.FavoriteMovie'
+          $ref: '#/definitions/internal_modules_favorites.FavoriteMovie'
         type: array
       limit:
         type: integer
@@ -292,26 +294,26 @@ definitions:
       total_count:
         type: integer
     type: object
-  genres.ErrorResponse:
+  internal_modules_genres.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  genres.GenreResponse:
+  internal_modules_genres.GenreResponse:
     properties:
       id:
         type: integer
       name:
         type: string
     type: object
-  genres.GenresListResponse:
+  internal_modules_genres.GenresListResponse:
     properties:
       genres:
         items:
-          $ref: '#/definitions/genres.GenreResponse'
+          $ref: '#/definitions/internal_modules_genres.GenreResponse'
         type: array
     type: object
-  genres.UserGenreResponse:
+  internal_modules_genres.UserGenreResponse:
     properties:
       genreId:
         description: Foreign key to genres table
@@ -321,14 +323,14 @@ definitions:
       name:
         type: string
     type: object
-  genres.UserGenresListResponse:
+  internal_modules_genres.UserGenresListResponse:
     properties:
       genres:
         items:
-          $ref: '#/definitions/genres.UserGenreResponse'
+          $ref: '#/definitions/internal_modules_genres.UserGenreResponse'
         type: array
     type: object
-  movies.CastMember:
+  internal_modules_movies.CastMember:
     properties:
       character:
         type: string
@@ -341,21 +343,21 @@ definitions:
       profile_url:
         type: string
     type: object
-  movies.CreditsResponse:
+  internal_modules_movies.CreditsResponse:
     properties:
       cast:
         items:
-          $ref: '#/definitions/movies.CastMember'
+          $ref: '#/definitions/internal_modules_movies.CastMember'
         type: array
     type: object
-  movies.ErrorResponse:
+  internal_modules_movies.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  movies.MovieDetailsResponse:
+  internal_modules_movies.MovieDetailsResponse:
     properties:
       adult:
         type: boolean
@@ -364,7 +366,7 @@ definitions:
       budget:
         type: integer
       credits:
-        $ref: '#/definitions/movies.CreditsResponse'
+        $ref: '#/definitions/internal_modules_movies.CreditsResponse'
       dislike_count:
         type: integer
       genres:
@@ -404,9 +406,9 @@ definitions:
         description: User's reaction to this movie (empty if not reacted)
         type: string
       watch_providers:
-        $ref: '#/definitions/movies.WatchProvidersDTO'
+        $ref: '#/definitions/internal_modules_movies.WatchProvidersDTO'
     type: object
-  movies.MovieResponse:
+  internal_modules_movies.MovieResponse:
     properties:
       backdrop_url:
         type: string
@@ -447,7 +449,7 @@ definitions:
         description: User's reaction to this movie (empty if not reacted)
         type: string
     type: object
-  movies.ProviderInfo:
+  internal_modules_movies.ProviderInfo:
     properties:
       display_priority:
         type: integer
@@ -458,11 +460,11 @@ definitions:
       provider_name:
         type: string
     type: object
-  movies.SearchResponse:
+  internal_modules_movies.SearchResponse:
     properties:
       movies:
         items:
-          $ref: '#/definitions/movies.MovieResponse'
+          $ref: '#/definitions/internal_modules_movies.MovieResponse'
         type: array
       page:
         type: integer
@@ -471,11 +473,11 @@ definitions:
       total_results:
         type: integer
     type: object
-  movies.TrendingResponse:
+  internal_modules_movies.TrendingResponse:
     properties:
       movies:
         items:
-          $ref: '#/definitions/movies.MovieResponse'
+          $ref: '#/definitions/internal_modules_movies.MovieResponse'
         type: array
       page:
         type: integer
@@ -484,7 +486,7 @@ definitions:
       total_results:
         type: integer
     type: object
-  movies.VideoDetail:
+  internal_modules_movies.VideoDetail:
     properties:
       id:
         type: string
@@ -499,25 +501,25 @@ definitions:
       type:
         type: string
     type: object
-  movies.VideosResponse:
+  internal_modules_movies.VideosResponse:
     properties:
       id:
         type: integer
       videos:
         items:
-          $ref: '#/definitions/movies.VideoDetail'
+          $ref: '#/definitions/internal_modules_movies.VideoDetail'
         type: array
     type: object
-  movies.WatchProvidersDTO:
+  internal_modules_movies.WatchProvidersDTO:
     properties:
       results:
         additionalProperties:
           items:
-            $ref: '#/definitions/movies.ProviderInfo'
+            $ref: '#/definitions/internal_modules_movies.ProviderInfo'
           type: array
         type: object
     type: object
-  profile.ChangePasswordRequest:
+  internal_modules_profile.ChangePasswordRequest:
     properties:
       logoutFromAllDevices:
         type: boolean
@@ -530,29 +532,29 @@ definitions:
     - newPassword
     - oldPassword
     type: object
-  profile.ChangePasswordResponse:
+  internal_modules_profile.ChangePasswordResponse:
     properties:
       message:
         type: string
     type: object
-  profile.DeleteAccountRequest:
+  internal_modules_profile.DeleteAccountRequest:
     properties:
       confirmText:
         type: string
     required:
     - confirmText
     type: object
-  profile.DeleteAccountResponse:
+  internal_modules_profile.DeleteAccountResponse:
     properties:
       message:
         type: string
     type: object
-  profile.DeleteProfilePictureResponse:
+  internal_modules_profile.DeleteProfilePictureResponse:
     properties:
       message:
         type: string
     type: object
-  profile.DisableAccountRequest:
+  internal_modules_profile.DisableAccountRequest:
     properties:
       confirmText:
         type: string
@@ -567,7 +569,7 @@ definitions:
     - confirmText
     - durationDays
     type: object
-  profile.DisableAccountResponse:
+  internal_modules_profile.DisableAccountResponse:
     properties:
       disabledUntil:
         description: Unix timestamp
@@ -575,7 +577,7 @@ definitions:
       message:
         type: string
     type: object
-  profile.EmailChangeStepResponse:
+  internal_modules_profile.EmailChangeStepResponse:
     properties:
       expiresAt:
         type: integer
@@ -587,14 +589,14 @@ definitions:
         description: '"otp_sent_to_old", "otp_sent_to_new", "email_updated"'
         type: string
     type: object
-  profile.ErrorResponse:
+  internal_modules_profile.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  profile.GetProfileResponse:
+  internal_modules_profile.GetProfileResponse:
     properties:
       email:
         type: string
@@ -614,14 +616,14 @@ definitions:
         description: screen_enthusiast, cinema_lover, cinephile, cinephile_pro, cinephile_elite
         type: string
     type: object
-  profile.InitiateEmailChangeRequest:
+  internal_modules_profile.InitiateEmailChangeRequest:
     properties:
       newEmail:
         type: string
     required:
     - newEmail
     type: object
-  profile.ResendEmailChangeResponse:
+  internal_modules_profile.ResendEmailChangeResponse:
     properties:
       expiresAt:
         type: integer
@@ -631,7 +633,7 @@ definitions:
         description: '"otp_sent_to_old" or "otp_sent_to_new"'
         type: string
     type: object
-  profile.UpdateProfileResponse:
+  internal_modules_profile.UpdateProfileResponse:
     properties:
       message:
         type: string
@@ -642,14 +644,14 @@ definitions:
       smartSuggest:
         type: boolean
     type: object
-  profile.VerifyEmailRequest:
+  internal_modules_profile.VerifyEmailRequest:
     properties:
       otp:
         type: string
     required:
     - otp
     type: object
-  profile.VerifyEmailResponse:
+  internal_modules_profile.VerifyEmailResponse:
     properties:
       isVerified:
         type: boolean
@@ -662,7 +664,7 @@ definitions:
         description: '"otp_sent_to_new", "email_updated"'
         type: string
     type: object
-  reactions.AddReactionRequest:
+  internal_modules_reactions.AddReactionRequest:
     properties:
       reaction:
         type: string
@@ -672,19 +674,19 @@ definitions:
     - reaction
     - tmdb_id
     type: object
-  reactions.AddReactionResponse:
+  internal_modules_reactions.AddReactionResponse:
     properties:
       message:
         type: string
       success:
         type: boolean
     type: object
-  reactions.ErrorResponse:
+  internal_modules_reactions.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  reviews.CreateReviewRequest:
+  internal_modules_reviews.CreateReviewRequest:
     properties:
       comment:
         type: string
@@ -698,14 +700,14 @@ definitions:
     - rating
     - tmdb_id
     type: object
-  reviews.ErrorResponse:
+  internal_modules_reviews.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  reviews.ReviewResponse:
+  internal_modules_reviews.ReviewResponse:
     properties:
       comment:
         type: string
@@ -724,7 +726,7 @@ definitions:
       user_id:
         type: integer
     type: object
-  reviews.ReviewsListItem:
+  internal_modules_reviews.ReviewsListItem:
     properties:
       author_name:
         type: string
@@ -752,7 +754,7 @@ definitions:
       user_id:
         type: integer
     type: object
-  reviews.ReviewsListResponse:
+  internal_modules_reviews.ReviewsListResponse:
     properties:
       has_more:
         type: boolean
@@ -760,10 +762,10 @@ definitions:
         type: string
       reviews:
         items:
-          $ref: '#/definitions/reviews.ReviewsListItem'
+          $ref: '#/definitions/internal_modules_reviews.ReviewsListItem'
         type: array
     type: object
-  reviews.UpdateReviewRequest:
+  internal_modules_reviews.UpdateReviewRequest:
     properties:
       comment:
         type: string
@@ -772,12 +774,12 @@ definitions:
         minimum: 1
         type: integer
     type: object
-  streaming_services.ErrorResponse:
+  internal_modules_streaming_services.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  streaming_services.SearchStreamingServicesResponse:
+  internal_modules_streaming_services.SearchStreamingServicesResponse:
     properties:
       limit:
         type: integer
@@ -785,12 +787,12 @@ definitions:
         type: string
       streamingServices:
         items:
-          $ref: '#/definitions/streaming_services.StreamingServiceResponse'
+          $ref: '#/definitions/internal_modules_streaming_services.StreamingServiceResponse'
         type: array
       total_count:
         type: integer
     type: object
-  streaming_services.StreamingServiceResponse:
+  internal_modules_streaming_services.StreamingServiceResponse:
     properties:
       iconUrl:
         type: string
@@ -799,7 +801,7 @@ definitions:
       name:
         type: string
     type: object
-  streaming_services.StreamingServicesListResponse:
+  internal_modules_streaming_services.StreamingServicesListResponse:
     properties:
       limit:
         type: integer
@@ -807,12 +809,12 @@ definitions:
         type: string
       streamingServices:
         items:
-          $ref: '#/definitions/streaming_services.StreamingServiceResponse'
+          $ref: '#/definitions/internal_modules_streaming_services.StreamingServiceResponse'
         type: array
       total_count:
         type: integer
     type: object
-  streaming_services.UpdateStreamingServicesRequest:
+  internal_modules_streaming_services.UpdateStreamingServicesRequest:
     properties:
       serviceIds:
         items:
@@ -821,7 +823,7 @@ definitions:
     required:
     - serviceIds
     type: object
-  streaming_services.UserStreamingServiceResponse:
+  internal_modules_streaming_services.UserStreamingServiceResponse:
     properties:
       iconUrl:
         type: string
@@ -833,19 +835,19 @@ definitions:
         description: Foreign key to streaming_services table
         type: integer
     type: object
-  streaming_services.UserStreamingServicesListResponse:
+  internal_modules_streaming_services.UserStreamingServicesListResponse:
     properties:
       streamingServices:
         items:
-          $ref: '#/definitions/streaming_services.UserStreamingServiceResponse'
+          $ref: '#/definitions/internal_modules_streaming_services.UserStreamingServiceResponse'
         type: array
     type: object
-  suggestion_tries.ErrorResponse:
+  internal_modules_suggestion_tries.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  suggestion_tries.Movie:
+  internal_modules_suggestion_tries.Movie:
     properties:
       backdrop_url:
         type: string
@@ -866,7 +868,7 @@ definitions:
       tmdb_rating:
         type: integer
     type: object
-  suggestion_tries.SuggestionTriesResponse:
+  internal_modules_suggestion_tries.SuggestionTriesResponse:
     properties:
       generated_at:
         type: string
@@ -874,19 +876,19 @@ definitions:
         type: integer
       suggestions:
         items:
-          $ref: '#/definitions/suggestion_tries.Movie'
+          $ref: '#/definitions/internal_modules_suggestion_tries.Movie'
         type: array
       try_number:
         type: integer
       week_start:
         type: string
     type: object
-  suggestions.ErrorResponse:
+  internal_modules_suggestions.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  suggestions.GenerateSuggestionsResponse:
+  internal_modules_suggestions.GenerateSuggestionsResponse:
     properties:
       finished:
         type: boolean
@@ -898,10 +900,10 @@ definitions:
         type: boolean
       suggestions:
         items:
-          $ref: '#/definitions/suggestions.MovieDetails'
+          $ref: '#/definitions/internal_modules_suggestions.MovieDetails'
         type: array
     type: object
-  suggestions.MovieDetails:
+  internal_modules_suggestions.MovieDetails:
     properties:
       backdrop_url:
         type: string
@@ -940,7 +942,7 @@ definitions:
       user_reaction:
         type: string
     type: object
-  suggestions.NextResponse:
+  internal_modules_suggestions.NextResponse:
     properties:
       finished:
         type: boolean
@@ -953,9 +955,9 @@ definitions:
       regeneration:
         type: boolean
       suggestion:
-        $ref: '#/definitions/suggestions.MovieDetails'
+        $ref: '#/definitions/internal_modules_suggestions.MovieDetails'
     type: object
-  watched.AddToWatchedRequest:
+  internal_modules_watched.AddToWatchedRequest:
     properties:
       tmdb_ids:
         items:
@@ -965,34 +967,34 @@ definitions:
     required:
     - tmdb_ids
     type: object
-  watched.ErrorResponse:
+  internal_modules_watched.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  watched.GetWatchedIDsResponse:
+  internal_modules_watched.GetWatchedIDsResponse:
     properties:
       tmdb_ids:
         items:
           type: integer
         type: array
     type: object
-  watched.GetWatchedResponse:
+  internal_modules_watched.GetWatchedResponse:
     properties:
       limit:
         type: integer
       movies:
         items:
-          $ref: '#/definitions/watched.WatchedMovie'
+          $ref: '#/definitions/internal_modules_watched.WatchedMovie'
         type: array
       next_cursor:
         type: string
       total_count:
         type: integer
     type: object
-  watched.WatchedMovie:
+  internal_modules_watched.WatchedMovie:
     properties:
       added_at:
         type: string
@@ -1015,7 +1017,7 @@ definitions:
       tmdb_rating:
         type: integer
     type: object
-  watchlist.AddToWatchlistRequest:
+  internal_modules_watchlist.AddToWatchlistRequest:
     properties:
       tmdb_ids:
         items:
@@ -1025,34 +1027,34 @@ definitions:
     required:
     - tmdb_ids
     type: object
-  watchlist.ErrorResponse:
+  internal_modules_watchlist.ErrorResponse:
     properties:
       error:
         type: string
       message:
         type: string
     type: object
-  watchlist.GetWatchlistIDsResponse:
+  internal_modules_watchlist.GetWatchlistIDsResponse:
     properties:
       tmdb_ids:
         items:
           type: integer
         type: array
     type: object
-  watchlist.GetWatchlistResponse:
+  internal_modules_watchlist.GetWatchlistResponse:
     properties:
       limit:
         type: integer
       movies:
         items:
-          $ref: '#/definitions/watchlist.WatchlistMovie'
+          $ref: '#/definitions/internal_modules_watchlist.WatchlistMovie'
         type: array
       next_cursor:
         type: string
       total_count:
         type: integer
     type: object
-  watchlist.WatchlistMovie:
+  internal_modules_watchlist.WatchlistMovie:
     properties:
       added_at:
         type: string
@@ -1075,12 +1077,12 @@ definitions:
       tmdb_rating:
         type: integer
     type: object
-  weekly_suggestions.ErrorResponse:
+  internal_modules_weekly_suggestions.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  weekly_suggestions.Movie:
+  internal_modules_weekly_suggestions.Movie:
     properties:
       genres:
         items:
@@ -1099,7 +1101,7 @@ definitions:
       tmdb_rating:
         type: integer
     type: object
-  weekly_suggestions.WeeklySuggestionResponse:
+  internal_modules_weekly_suggestions.WeeklySuggestionResponse:
     properties:
       already_generated:
         type: boolean
@@ -1107,7 +1109,7 @@ definitions:
         type: string
       suggestions:
         items:
-          $ref: '#/definitions/weekly_suggestions.Movie'
+          $ref: '#/definitions/internal_modules_weekly_suggestions.Movie'
         type: array
       week_start:
         type: string
@@ -1136,22 +1138,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.ForgotPasswordRequest'
+          $ref: '#/definitions/internal_modules_auth.ForgotPasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Reset email sent
           schema:
-            $ref: '#/definitions/auth.ForgotPasswordResponse'
+            $ref: '#/definitions/internal_modules_auth.ForgotPasswordResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Request password reset
       tags:
       - auth
@@ -1167,15 +1169,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.InitVerifyResponse'
+            $ref: '#/definitions/internal_modules_auth.InitVerifyResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Initiate email verification
@@ -1192,30 +1194,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.LoginRequest'
+          $ref: '#/definitions/internal_modules_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Login successful
           schema:
-            $ref: '#/definitions/auth.LoginResponse'
+            $ref: '#/definitions/internal_modules_auth.LoginResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "401":
           description: Invalid credentials
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "429":
           description: Account locked
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Login user
       tags:
       - auth
@@ -1229,7 +1231,7 @@ paths:
         in: body
         name: request
         schema:
-          $ref: '#/definitions/auth.LogoutRequest'
+          $ref: '#/definitions/internal_modules_auth.LogoutRequest'
       produces:
       - application/json
       responses:
@@ -1248,11 +1250,11 @@ paths:
         "200":
           description: New access token
           schema:
-            $ref: '#/definitions/auth.RefreshTokenResponse'
+            $ref: '#/definitions/internal_modules_auth.RefreshTokenResponse'
         "401":
           description: Invalid or expired refresh token
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Refresh access token
@@ -1269,26 +1271,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.ResendVerificationRequest'
+          $ref: '#/definitions/internal_modules_auth.ResendVerificationRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Verification code sent
           schema:
-            $ref: '#/definitions/auth.ResendVerificationResponse'
+            $ref: '#/definitions/internal_modules_auth.ResendVerificationResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "429":
           description: Cooldown active
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Resend signup verification code
       tags:
       - auth
@@ -1303,26 +1305,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.ResendResetRequest'
+          $ref: '#/definitions/internal_modules_auth.ResendResetRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Reset email sent
           schema:
-            $ref: '#/definitions/auth.ResendResetResponse'
+            $ref: '#/definitions/internal_modules_auth.ResendResetResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "429":
           description: Cooldown active
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Resend password reset email
       tags:
       - auth
@@ -1337,30 +1339,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.ResetPasswordRequest'
+          $ref: '#/definitions/internal_modules_auth.ResetPasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Password reset successful
           schema:
-            $ref: '#/definitions/auth.ResetPasswordResponse'
+            $ref: '#/definitions/internal_modules_auth.ResetPasswordResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "401":
           description: Invalid or expired token
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "429":
           description: Max attempts reached
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Reset password
       tags:
       - auth
@@ -1376,7 +1378,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.DeleteSessionRequest'
+          $ref: '#/definitions/internal_modules_auth.DeleteSessionRequest'
       - description: Magic link for session management (alternative to Bearer token)
         in: query
         name: magic_link
@@ -1387,19 +1389,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.DeleteSessionResponse'
+            $ref: '#/definitions/internal_modules_auth.DeleteSessionResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "404":
           description: Session not found
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete session
@@ -1421,15 +1423,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.GetSessionsResponse'
+            $ref: '#/definitions/internal_modules_auth.GetSessionsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all sessions
@@ -1446,26 +1448,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.SignupRequest'
+          $ref: '#/definitions/internal_modules_auth.SignupRequest'
       produces:
       - application/json
       responses:
         "200":
           description: User created, verification required
           schema:
-            $ref: '#/definitions/auth.SignupResponse'
+            $ref: '#/definitions/internal_modules_auth.SignupResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "409":
           description: Email already exists
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Register a new user
       tags:
       - auth
@@ -1480,30 +1482,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.VerifyRequest'
+          $ref: '#/definitions/internal_modules_auth.VerifyRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Email verified
           schema:
-            $ref: '#/definitions/auth.VerifyResponse'
+            $ref: '#/definitions/internal_modules_auth.VerifyResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "401":
           description: Invalid or expired token
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "429":
           description: Max attempts reached
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/auth.ErrorResponse'
+            $ref: '#/definitions/internal_modules_auth.ErrorResponse'
       summary: Verify email
       tags:
       - auth
@@ -1518,22 +1520,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/export.ExportRequest'
+          $ref: '#/definitions/internal_modules_export.ExportRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/export.ExportResponse'
+            $ref: '#/definitions/internal_modules_export.ExportResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/export.ErrorResponse'
+            $ref: '#/definitions/internal_modules_export.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/export.ErrorResponse'
+            $ref: '#/definitions/internal_modules_export.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Request data export
@@ -1562,15 +1564,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/favorites.GetFavoritesResponse'
+            $ref: '#/definitions/internal_modules_favorites.GetFavoritesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user's favorites
@@ -1586,26 +1588,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/favorites.AddFavoritesRequest'
+          $ref: '#/definitions/internal_modules_favorites.AddFavoritesRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/favorites.AddFavoritesResponse'
+            $ref: '#/definitions/internal_modules_favorites.AddFavoritesResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Add movies to favorites
@@ -1632,19 +1634,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove movie from favorites
@@ -1659,15 +1661,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/favorites.GetFavoriteIDsResponse'
+            $ref: '#/definitions/internal_modules_favorites.GetFavoriteIDsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all favorite TMDB IDs
@@ -1697,19 +1699,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/favorites.GetFavoritesResponse'
+            $ref: '#/definitions/internal_modules_favorites.GetFavoritesResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/favorites.ErrorResponse'
+            $ref: '#/definitions/internal_modules_favorites.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Search within favorites
@@ -1724,15 +1726,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/genres.GenresListResponse'
+            $ref: '#/definitions/internal_modules_genres.GenresListResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all genres
@@ -1761,15 +1763,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove a genre from user's preferences
@@ -1795,15 +1797,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Add a genre to user's preferences
@@ -1818,15 +1820,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/genres.UserGenresListResponse'
+            $ref: '#/definitions/internal_modules_genres.UserGenresListResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/genres.ErrorResponse'
+            $ref: '#/definitions/internal_modules_genres.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user's preferred genres
@@ -1850,23 +1852,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/movies.MovieDetailsResponse'
+            $ref: '#/definitions/internal_modules_movies.MovieDetailsResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get movie details
@@ -1898,19 +1900,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/reviews.ReviewsListResponse'
+            $ref: '#/definitions/internal_modules_reviews.ReviewsListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get movie reviews
@@ -1933,19 +1935,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/movies.VideosResponse'
+            $ref: '#/definitions/internal_modules_movies.VideosResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get movie videos
@@ -1973,19 +1975,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/movies.SearchResponse'
+            $ref: '#/definitions/internal_modules_movies.SearchResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Search movies
@@ -2008,15 +2010,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/movies.TrendingResponse'
+            $ref: '#/definitions/internal_modules_movies.TrendingResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/movies.ErrorResponse'
+            $ref: '#/definitions/internal_modules_movies.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get trending movies
@@ -2033,26 +2035,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/profile.DisableAccountRequest'
+          $ref: '#/definitions/internal_modules_profile.DisableAccountRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.DisableAccountResponse'
+            $ref: '#/definitions/internal_modules_profile.DisableAccountResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Disable account
@@ -2069,26 +2071,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/profile.InitiateEmailChangeRequest'
+          $ref: '#/definitions/internal_modules_profile.InitiateEmailChangeRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.EmailChangeStepResponse'
+            $ref: '#/definitions/internal_modules_profile.EmailChangeStepResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "409":
           description: Email already in use
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Initiate email change
@@ -2105,19 +2107,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.ResendEmailChangeResponse'
+            $ref: '#/definitions/internal_modules_profile.ResendEmailChangeResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "429":
           description: Cooldown active
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Resend email change OTP
@@ -2134,26 +2136,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/profile.DeleteAccountRequest'
+          $ref: '#/definitions/internal_modules_profile.DeleteAccountRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.DeleteAccountResponse'
+            $ref: '#/definitions/internal_modules_profile.DeleteAccountResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete account
@@ -2167,19 +2169,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.GetProfileResponse'
+            $ref: '#/definitions/internal_modules_profile.GetProfileResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get current user profile
@@ -2208,19 +2210,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.UpdateProfileResponse'
+            $ref: '#/definitions/internal_modules_profile.UpdateProfileResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update user profile
@@ -2237,19 +2239,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.DeleteProfilePictureResponse'
+            $ref: '#/definitions/internal_modules_profile.DeleteProfilePictureResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "404":
           description: No profile picture to delete
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete profile picture
@@ -2266,26 +2268,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/profile.ChangePasswordRequest'
+          $ref: '#/definitions/internal_modules_profile.ChangePasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.ChangePasswordResponse'
+            $ref: '#/definitions/internal_modules_profile.ChangePasswordResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "401":
           description: Invalid old password
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Change password
@@ -2302,30 +2304,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/profile.VerifyEmailRequest'
+          $ref: '#/definitions/internal_modules_profile.VerifyEmailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile.VerifyEmailResponse'
+            $ref: '#/definitions/internal_modules_profile.VerifyEmailResponse'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "401":
           description: Invalid OTP or expired
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "429":
           description: Max attempts reached
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/profile.ErrorResponse'
+            $ref: '#/definitions/internal_modules_profile.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Verify email change
@@ -2343,30 +2345,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/reactions.AddReactionRequest'
+          $ref: '#/definitions/internal_modules_reactions.AddReactionRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/reactions.AddReactionResponse'
+            $ref: '#/definitions/internal_modules_reactions.AddReactionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/reactions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reactions.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/reactions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reactions.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/reactions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reactions.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/reactions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reactions.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Add reaction to movie
@@ -2377,6 +2379,7 @@ paths:
       consumes:
       - application/json
       description: Gets reviews for the authenticated user with cursor pagination
+        and optional date filtering
       parameters:
       - description: Pagination cursor
         in: query
@@ -2387,21 +2390,29 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Start date (DD-MM-YYYY)
+        in: query
+        name: from
+        type: string
+      - description: End date (DD-MM-YYYY)
+        in: query
+        name: to
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/reviews.ReviewsListResponse'
+            $ref: '#/definitions/internal_modules_reviews.ReviewsListResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user's reviews
@@ -2417,26 +2428,26 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/reviews.CreateReviewRequest'
+          $ref: '#/definitions/internal_modules_reviews.CreateReviewRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/reviews.ReviewResponse'
+            $ref: '#/definitions/internal_modules_reviews.ReviewResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a review
@@ -2462,19 +2473,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a review
@@ -2496,30 +2507,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/reviews.UpdateReviewRequest'
+          $ref: '#/definitions/internal_modules_reviews.UpdateReviewRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/reviews.ReviewResponse'
+            $ref: '#/definitions/internal_modules_reviews.ReviewResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/reviews.ErrorResponse'
+            $ref: '#/definitions/internal_modules_reviews.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update a review
@@ -2547,15 +2558,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/streaming_services.StreamingServicesListResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.StreamingServicesListResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all streaming services
@@ -2571,7 +2582,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/streaming_services.UpdateStreamingServicesRequest'
+          $ref: '#/definitions/internal_modules_streaming_services.UpdateStreamingServicesRequest'
       produces:
       - application/json
       responses:
@@ -2584,15 +2595,15 @@ paths:
         "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update user's streaming services (bulk)
@@ -2621,15 +2632,15 @@ paths:
         "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove a streaming service from user's profile
@@ -2646,7 +2657,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/streaming_services.UpdateStreamingServicesRequest'
+          $ref: '#/definitions/internal_modules_streaming_services.UpdateStreamingServicesRequest'
       produces:
       - application/json
       responses:
@@ -2659,15 +2670,15 @@ paths:
         "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove multiple streaming services from user's profile
@@ -2684,15 +2695,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/streaming_services.UserStreamingServicesListResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.UserStreamingServicesListResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user's selected streaming services
@@ -2725,19 +2736,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/streaming_services.SearchStreamingServicesResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.SearchStreamingServicesResponse'
         "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/streaming_services.ErrorResponse'
+            $ref: '#/definitions/internal_modules_streaming_services.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Search streaming services
@@ -2748,30 +2759,30 @@ paths:
       consumes:
       - application/json
       description: Returns 5 movie suggestions. User has 3 tries per week (resets
-        every Sunday IST).
+        every Sunday IST). Requires at least 5 favorites and 20 reactions.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/suggestion_tries.SuggestionTriesResponse'
+            $ref: '#/definitions/internal_modules_suggestion_tries.SuggestionTriesResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestion_tries.ErrorResponse'
         "422":
-          description: Minimum favorites not met
+          description: Minimum favorites (5) or reactions (20) not met
           schema:
-            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestion_tries.ErrorResponse'
         "429":
           description: Weekly tries exhausted
           schema:
-            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestion_tries.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/suggestion_tries.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestion_tries.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Generate movie suggestions with weekly tries
@@ -2789,19 +2800,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/suggestions.GenerateSuggestionsResponse'
+            $ref: '#/definitions/internal_modules_suggestions.GenerateSuggestionsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
         "422":
           description: Minimum favorites not met
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Generate or resume movie suggestions
@@ -2824,23 +2835,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/suggestions.NextResponse'
+            $ref: '#/definitions/internal_modules_suggestions.NextResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_suggestions.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get next movie suggestion
@@ -2869,15 +2880,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/watched.GetWatchedResponse'
+            $ref: '#/definitions/internal_modules_watched.GetWatchedResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user's watched movies
@@ -2893,7 +2904,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/watched.AddToWatchedRequest'
+          $ref: '#/definitions/internal_modules_watched.AddToWatchedRequest'
       produces:
       - application/json
       responses:
@@ -2906,15 +2917,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Add movies to watched
@@ -2937,15 +2948,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove movie from watched
@@ -2960,15 +2971,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/watched.GetWatchedIDsResponse'
+            $ref: '#/definitions/internal_modules_watched.GetWatchedIDsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all watched TMDB IDs
@@ -2998,15 +3009,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/watched.GetWatchedResponse'
+            $ref: '#/definitions/internal_modules_watched.GetWatchedResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watched.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watched.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Search user's watched list
@@ -3035,15 +3046,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/watchlist.GetWatchlistResponse'
+            $ref: '#/definitions/internal_modules_watchlist.GetWatchlistResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user's watchlist
@@ -3059,7 +3070,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/watchlist.AddToWatchlistRequest'
+          $ref: '#/definitions/internal_modules_watchlist.AddToWatchlistRequest'
       produces:
       - application/json
       responses:
@@ -3072,15 +3083,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Add movies to watchlist
@@ -3103,15 +3114,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Remove movie from watchlist
@@ -3126,15 +3137,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/watchlist.GetWatchlistIDsResponse'
+            $ref: '#/definitions/internal_modules_watchlist.GetWatchlistIDsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all watchlist TMDB IDs
@@ -3164,15 +3175,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/watchlist.GetWatchlistResponse'
+            $ref: '#/definitions/internal_modules_watchlist.GetWatchlistResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/watchlist.ErrorResponse'
+            $ref: '#/definitions/internal_modules_watchlist.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Search user's watchlist
@@ -3182,26 +3193,27 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns 5 movie suggestions for the current week (Sunday to Saturday)
+      description: Returns 5 movie suggestions for the current week (Sunday to Saturday).
+        Requires at least 5 favorites and 20 reactions.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/weekly_suggestions.WeeklySuggestionResponse'
+            $ref: '#/definitions/internal_modules_weekly_suggestions.WeeklySuggestionResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/weekly_suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_weekly_suggestions.ErrorResponse'
         "422":
-          description: Minimum favorites not met
+          description: Minimum favorites (5) or reactions (20) not met
           schema:
-            $ref: '#/definitions/weekly_suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_weekly_suggestions.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/weekly_suggestions.ErrorResponse'
+            $ref: '#/definitions/internal_modules_weekly_suggestions.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get weekly movie suggestions

@@ -34,13 +34,12 @@ func (h *Handler) setRefreshCookie(c *gin.Context, token string, maxAge int) {
 	} else {
 		c.SetSameSite(http.SameSiteLaxMode)
 	}
-	cookieDomain := ".cinematchh.vercel.app"
-	c.SetCookie(
+		c.SetCookie(
 		"refreshToken",
 		token,
 		maxAge,
 		"/",
-		cookieDomain,
+		"",
 		secure,
 		true,
 	)
