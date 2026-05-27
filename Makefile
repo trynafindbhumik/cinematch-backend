@@ -43,6 +43,10 @@ install:
 lint:
 	golangci-lint run
 
+# Generate Swagger docs
+swagger:
+	export PATH=$PATH:$(go env GOPATH)/bin && swag init -g cmd/api/main.go --parseDependency --parseInternal -o ./docs
+
 # Check if air is installed
 check-air:
 	@which air > /dev/null || echo "air not found. Run: go install github.com/air-verse/air@latest"

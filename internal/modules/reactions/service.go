@@ -40,6 +40,10 @@ func (s *Service) AddReaction(ctx context.Context, userID int64, tmdbID int, rea
 		return fmt.Errorf("failed to update movie reaction counts: %w", err)
 	}
 
+	if err := s.repo.RemoveFromDailyGenerationLog(ctx, userID, tmdbID); err != nil {
+		log.Error("failed to remove tmdbid from generation log", logger.Err(err))
+	}
+
 	return nil
 }
 

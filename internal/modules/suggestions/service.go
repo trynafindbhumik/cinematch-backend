@@ -105,8 +105,19 @@ func (s *Service) GenerateSuggestions(ctx context.Context, userID int64) (*Gener
 		return nil, fmt.Errorf("failed to get today's log: %w", err)
 	}
 
-	if todayLog != nil && len(todayLog.MovieIDs) > 0 {
-		// Today's log exists and has movie_ids
+	if todayLog != nil {
+		// Today's log exists - use it, don't call Gemini even if empty
+		if len(todayLog.MovieIDs) == 0 {
+			// Empty array - return empty result, don't retry
+			return &GenerateResult{
+				Suggestions:    []MovieDetails{},
+				GenerationDate: todayLog.Date,
+				Regeneration:   false,
+				Finished:       true, // no more movies
+			}, nil
+		}
+
+		// Has movie_ids - return them
 		count := 2
 		if len(todayLog.MovieIDs) < 2 {
 			count = len(todayLog.MovieIDs)
