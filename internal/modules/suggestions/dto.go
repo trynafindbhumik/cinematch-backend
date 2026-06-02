@@ -27,6 +27,7 @@ type GenerateSuggestionsResponse struct {
 	Regeneration    bool           `json:"regeneration"`
 	Finished        bool           `json:"finished"`
 	Message         string         `json:"message,omitempty"`
+	IsExhausted     bool           `json:"is_exhausted,omitempty"`
 }
 
 type NextResponse struct {

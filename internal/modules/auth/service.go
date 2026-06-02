@@ -85,7 +85,7 @@ func (s *Service) Signup(ctx context.Context, req *SignupRequest) (*SignupRespon
 	email.SendEmailAsync(email.EmailData{
 		To:      req.Email,
 		Subject: "Verify your CineMatch account",
-		Body:    fmt.Sprintf("<h1>Welcome to CineMatch!</h1><p>Your verification code is: <strong>%s</strong></p><p>Or click here to verify: <a href=\"https://cinematch.com/verify?token=%s\">Verify Email</a></p><p>This code expires in 15 minutes.</p>", otp, rawToken),
+		Body:    fmt.Sprintf("<h1>Welcome to CineMatch!</h1><p>Your verification code is: <strong>%s</strong></p><p>Or click here to verify: <a href=\"https://cinematchh.vercel.app/verify?token=%s\">Verify Email</a></p><p>This code expires in 15 minutes.</p>", otp, rawToken),
 	})
 
 	return &SignupResponse{
@@ -203,8 +203,8 @@ func (s *Service) Verify(ctx context.Context, req *VerifyRequest, sessionParams 
 		AccessToken:     accessToken,
 		RefreshToken:    refreshToken,
 		IsVerified:      true,
-		IsFirstLogin:     user.IsFirstLogin,
-		NeedsOnboarding:  user.IsFirstLogin,
+		IsFirstLogin:    user.IsFirstLogin,
+		NeedsOnboarding: user.IsFirstLogin,
 		Message:         "Email verified successfully",
 	}, nil
 }
@@ -439,7 +439,7 @@ func (s *Service) ResendVerification(ctx context.Context, req *ResendVerificatio
 	email.SendEmailAsync(email.EmailData{
 		To:      req.Email,
 		Subject: "Verify your CineMatch account",
-		Body:    fmt.Sprintf("<h1>Welcome to CineMatch!</h1><p>Your verification code is: <strong>%s</strong></p><p>Or click here to verify: <a href=\"https://cinematch.com/verify?token=%s\">Verify Email</a></p><p>This code expires in 15 minutes.</p>", otp, rawToken),
+		Body:    fmt.Sprintf("<h1>Welcome to CineMatch!</h1><p>Your verification code is: <strong>%s</strong></p><p>Or click here to verify: <a href=\"https://cinematchh.vercel.app/verify?token=%s\">Verify Email</a></p><p>This code expires in 15 minutes.</p>", otp, rawToken),
 	})
 
 	return &ResendVerificationResponse{
@@ -491,7 +491,7 @@ func (s *Service) ForgotPassword(ctx context.Context, req *ForgotPasswordRequest
 	email.SendEmailAsync(email.EmailData{
 		To:      req.Email,
 		Subject: "CineMatch Password Reset",
-		Body:    fmt.Sprintf("<h1>Reset Your Password</h1><p>Click the link below to reset your password:</p><p><a href=\"https://cinematch.com/reset-password?token=%s\">Reset Password</a></p><p>This link expires in 15 minutes.</p>", rawToken),
+		Body:    fmt.Sprintf("<h1>Reset Your Password</h1><p>Click the link below to reset your password:</p><p><a href=\"https://cinematchh.vercel.app/reset-password?token=%s\">Reset Password</a></p><p>This link expires in 15 minutes.</p>", rawToken),
 	})
 
 	return &ForgotPasswordResponse{
@@ -603,7 +603,7 @@ func (s *Service) ResendReset(ctx context.Context, req *ResendResetRequest) (*Re
 	email.SendEmailAsync(email.EmailData{
 		To:      req.Email,
 		Subject: "CineMatch Password Reset",
-		Body:    fmt.Sprintf("<h1>Reset Your Password</h1><p>Click the link below to reset your password:</p><p><a href=\"https://cinematch.com/reset-password?token=%s\">Reset Password</a></p><p>This link expires in 15 minutes.</p>", rawToken),
+		Body:    fmt.Sprintf("<h1>Reset Your Password</h1><p>Click the link below to reset your password:</p><p><a href=\"https://cinematchh.vercel.app/reset-password?token=%s\">Reset Password</a></p><p>This link expires in 15 minutes.</p>", rawToken),
 	})
 
 	return &ResendResetResponse{
@@ -623,9 +623,9 @@ func (s *Service) InitVerify(ctx context.Context, userID int64) (*InitVerifyResp
 	// Check if already verified
 	if user.IsVerified {
 		return &InitVerifyResponse{
-			Message:     "Email already verified",
-			Email:       user.Email,
-			IsVerified:  true,
+			Message:    "Email already verified",
+			Email:      user.Email,
+			IsVerified: true,
 		}, nil
 	}
 
@@ -662,7 +662,7 @@ func (s *Service) InitVerify(ctx context.Context, userID int64) (*InitVerifyResp
 	email.SendEmailAsync(email.EmailData{
 		To:      user.Email,
 		Subject: "Verify your CineMatch account",
-		Body:    fmt.Sprintf("<h1>Welcome to CineMatch!</h1><p>Your verification code is: <strong>%s</strong></p><p>Or click here to verify: <a href=\"https://cinematch.com/verify?token=%s\">Verify Email</a></p><p>This code expires in 15 minutes.</p>", otp, rawToken),
+		Body:    fmt.Sprintf("<h1>Welcome to CineMatch!</h1><p>Your verification code is: <strong>%s</strong></p><p>Or click here to verify: <a href=\"https://cinematchh.vercel.app/verify?token=%s\">Verify Email</a></p><p>This code expires in 15 minutes.</p>", otp, rawToken),
 	})
 
 	return &InitVerifyResponse{

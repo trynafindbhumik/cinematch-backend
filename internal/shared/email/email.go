@@ -1,25 +1,20 @@
 package email
 
 import (
-	"bytes"
-	"crypto/tls"
 	"fmt"
 	"os"
 	"strconv"
 	"sync"
 
+	"github.com/resend/resend-go/v3"
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
-	"gopkg.in/mail.v2"
 )
 
 type EmailConfig struct {
-	SMTPHost     string
-	SMTPPort     string
-	SMTPUsername string
-	SMTPPassword string
-	FromAddress  string
-	FromName     string
-	Enabled      bool
+	APIKey      string
+	FromAddress string
+	FromName    string
+	Enabled     bool
 }
 
 var (
@@ -29,10 +24,7 @@ var (
 
 func LoadEmailConfig() {
 	emailCfgOnce.Do(func() {
-		emailCfg.SMTPHost = getEnv("SMTP_HOST", "smtp.gmail.com")
-		emailCfg.SMTPPort = getEnv("SMTP_PORT", "587")
-		emailCfg.SMTPUsername = getEnv("SMTP_USERNAME", "")
-		emailCfg.SMTPPassword = getEnv("SMTP_PASSWORD", "")
+		emailCfg.APIKey = getEnv("RESEND_API_KEY", "")
 		emailCfg.FromAddress = getEnv("EMAIL_FROM_ADDRESS", "noreply@cinematch.com")
 		emailCfg.FromName = getEnv("EMAIL_FROM_NAME", "CineMatch")
 		emailCfg.Enabled = getEnvBool("EMAIL_ENABLED", true)
@@ -53,7 +45,7 @@ func SendVerificationEmail(to, otp, verificationID, token string) error {
 
 // SendPasswordResetEmail sends a password reset email
 func SendPasswordResetEmail(to, token, verificationID string) error {
-	link := fmt.Sprintf("https://cinematch.com/reset-password?token=%s&id=%s", token, verificationID)
+	link := fmt.Sprintf("https://cinematchh.vercel.app/reset-password?token=%s&id=%s", token, verificationID)
 	body := fmt.Sprintf(`
 		<h1>Reset Your Password</h1>
 		<p>Click the link below to reset your password:</p>
@@ -92,24 +84,16 @@ type Attachment struct {
 	Data     []byte
 }
 
-var dialer *mail.Dialer
-var dialerOnce sync.Once
+var (
+	resendClient     *resend.Client
+	resendClientOnce sync.Once
+)
 
-func getDialer() *mail.Dialer {
-	dialerOnce.Do(func() {
-		port, _ := strconv.Atoi(emailCfg.SMTPPort)
-		dialer = mail.NewDialer(
-			emailCfg.SMTPHost,
-			port,
-			emailCfg.SMTPUsername,
-			emailCfg.SMTPPassword,
-		)
-		dialer.StartTLSPolicy = mail.OpportunisticStartTLS
-		dialer.TLSConfig = &tls.Config{
-			ServerName: emailCfg.SMTPHost,
-		}
+func getClient() *resend.Client {
+	resendClientOnce.Do(func() {
+		resendClient = resend.NewClient(emailCfg.APIKey)
 	})
-	return dialer
+	return resendClient
 }
 
 func SendEmail(email EmailData) error {
@@ -121,24 +105,30 @@ func SendEmail(email EmailData) error {
 		return nil
 	}
 
-	if emailCfg.SMTPUsername == "" || emailCfg.SMTPPassword == "" {
-		logger.Warn("SMTP not configured, skipping email send")
+	if emailCfg.APIKey == "" {
+		logger.Warn("Resend not configured, skipping email send")
 		return nil
 	}
 
-	m := mail.NewMessage()
-	m.SetHeader("From", fmt.Sprintf("%s <%s>", emailCfg.FromName, emailCfg.FromAddress))
-	m.SetHeader("To", email.To)
-	m.SetHeader("Subject", email.Subject)
-	m.SetBody("text/html", email.Body)
+	params := &resend.SendEmailRequest{
+		From:    fmt.Sprintf("%s <%s>", emailCfg.FromName, emailCfg.FromAddress),
+		To:      []string{email.To},
+		Subject: email.Subject,
+		Html:    email.Body,
+	}
 
 	// Add attachment if provided
 	if email.Attachment != nil {
-		m.AttachReader(email.Attachment.Filename, bytes.NewReader(email.Attachment.Data), mail.SetHeader(map[string][]string{"Content-Type": {email.Attachment.MimeType}}))
+		params.Attachments = []*resend.Attachment{
+			{
+				Filename:    email.Attachment.Filename,
+				Content:     email.Attachment.Data,
+				ContentType: email.Attachment.MimeType,
+			},
+		}
 	}
 
-	d := getDialer()
-	if err := d.DialAndSend(m); err != nil {
+	if _, err := getClient().Emails.Send(params); err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 

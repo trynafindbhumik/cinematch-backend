@@ -53,10 +53,11 @@ func (h *Handler) GenerateSuggestions(c *gin.Context) {
 
 	c.JSON(http.StatusOK, GenerateSuggestionsResponse{
 		Suggestions:    result.Suggestions,
-		GenerationDate:  result.GenerationDate,
-		Regeneration:   result.Regeneration,
-		Finished:       result.Finished,
-		Message:        result.Message,
+		GenerationDate: result.GenerationDate,
+		Regeneration:  result.Regeneration,
+		Finished:      result.Finished,
+		Message:       result.Message,
+		IsExhausted:   result.IsExhausted,
 	})
 }
 
