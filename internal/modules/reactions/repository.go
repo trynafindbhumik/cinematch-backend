@@ -99,7 +99,7 @@ func (r *Repository) RemoveFromDailyGenerationLog(ctx context.Context, userID in
 	_, err := db.Pool().Exec(ctx, `
 		UPDATE user_daily_generation_log
 		SET movie_ids = array_remove(movie_ids, $2::int)
-		WHERE user_id = $1 AND date = (NOW() AT TIME ZONE 'Asia/Kolkata')::date
+		WHERE user_id = $1
 	`, userID, tmdbID)
 	if err != nil {
 		return fmt.Errorf("failed to remove from generation log: %w", err)

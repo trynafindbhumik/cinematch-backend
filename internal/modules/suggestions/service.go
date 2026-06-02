@@ -3,6 +3,7 @@ package suggestions
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/trynafindbhumik/cinematch-backend/internal/modules/movies"
@@ -36,10 +37,11 @@ func NewService(repo *Repository, geminiClient *gemini.Client, moviesSvc *movies
 
 type GenerateResult struct {
 	Suggestions    []MovieDetails
-	GenerationDate  string
+	GenerationDate string
 	Regeneration   bool
-	Finished        bool
-	Message         string
+	Finished       bool
+	Message        string
+	IsExhausted    bool
 }
 
 type NextResult struct {
@@ -64,105 +66,181 @@ func (s *Service) GenerateSuggestions(ctx context.Context, userID int64) (*Gener
 	if oldLog != nil {
 		log.Info("found old log", logger.String("date", oldLog.Date), logger.Int("movie_count", len(oldLog.MovieIDs)))
 
-		// Get first 2 movie IDs from old log
-		count := 2
-		if len(oldLog.MovieIDs) < 2 {
-			count = len(oldLog.MovieIDs)
+		movieIDs := oldLog.MovieIDs
+		log.Info("checking old log movies one by one", logger.Int("total", len(movieIDs)))
+		var validMovies []MovieDetails
+		for _, tmdbID := range movieIDs {
+			details, err := s.moviesSvc.GetMovieByID(ctx, tmdbID, userID)
+			if err != nil {
+				log.Warn("skipping stale TMDB ID", logger.Int("tmdb_id", tmdbID))
+				continue
+			}
+			validMovies = append(validMovies, MovieDetails{
+				TMDBID:      details.TMDBID,
+				Title:       details.Title,
+				PosterURL:   details.PosterURL,
+				BackdropURL: details.BackdropURL,
+				ReleaseYear: details.ReleaseYear,
+				TMDBRating:  details.TMDBRating,
+				Genres:      details.Genres,
+				Runtime:     details.Runtime,
+				Tagline:     details.Tagline,
+				Status:      details.Status,
+				TotalCount:  details.TotalCount,
+				LikeCount:   details.LikeCount,
+				LoveCount:   details.LoveCount,
+				HateCount:   details.HateCount,
+				SkipCount:   details.SkipCount,
+				DislikeCount: details.DislikeCount,
+				UserReaction: details.UserReaction,
+			})
+			if len(validMovies) == 2 {
+				break // return first 2 valid
+			}
 		}
 
-		movieIDs := oldLog.MovieIDs[:count]
-		movieDetails, err := s.getMovieDetails(ctx, movieIDs, userID)
-		if err != nil {
-			log.Error("failed to get movie details", logger.Err(err))
-			return nil, fmt.Errorf("failed to get movie details: %w", err)
+		if len(validMovies) > 0 {
+			regeneration := len(oldLog.MovieIDs) <= 2
+			log.Info("returning old log suggestions", logger.Int("suggestions_count", len(validMovies)))
+			return &GenerateResult{
+				Suggestions:    validMovies,
+				GenerationDate: oldLog.Date,
+				Regeneration:   regeneration,
+				Finished:       false,
+			}, nil
 		}
 
-		// Create today's log with fresh movies (for later use)
-		todayMovieIDs, err := s.generateNewSuggestions(ctx, userID)
-		if err != nil {
-			return nil, err
-		}
-		if err := s.repo.CreateTodayLog(ctx, userID, todayMovieIDs); err != nil {
-			log.Error("failed to create today's log", logger.Err(err))
-			// Continue anyway, old log still has movies
-		}
-
-		// Determine regeneration flag
-		regeneration := len(oldLog.MovieIDs) <= 2 // only true when old log has 1-2 movies (partial case)
-
-		return &GenerateResult{
-			Suggestions:    movieDetails,
-			GenerationDate: oldLog.Date,
-			Regeneration:   regeneration,
-			Finished:       false,
-		}, nil
+		// All old log movies stale — fall through to today's log
+		log.Warn("all old log TMDB IDs stale, falling through to today's log")
 	}
 
-	// Step 2: No old log with movie_ids - check today's log
+	// Step 2: Today's log exists with movies — use it
 	todayLog, err := s.repo.GetTodayLog(ctx, userID)
 	if err != nil {
 		log.Error("failed to get today's log", logger.Err(err))
 		return nil, fmt.Errorf("failed to get today's log: %w", err)
 	}
 
-	if todayLog != nil {
-		// Today's log exists - use it, don't call Gemini even if empty
-		if len(todayLog.MovieIDs) == 0 {
-			// Empty array - return empty result, don't retry
+	if todayLog != nil && len(todayLog.MovieIDs) > 0 {
+		validMovies := []MovieDetails{}
+		for _, tmdbID := range todayLog.MovieIDs {
+			details, err := s.moviesSvc.GetMovieByID(ctx, tmdbID, userID)
+			if err != nil {
+				log.Warn("skipping stale TMDB ID", logger.Int("tmdb_id", tmdbID))
+				continue
+			}
+			validMovies = append(validMovies, MovieDetails{
+				TMDBID:      details.TMDBID,
+				Title:       details.Title,
+				PosterURL:   details.PosterURL,
+				BackdropURL: details.BackdropURL,
+				ReleaseYear: details.ReleaseYear,
+				TMDBRating:  details.TMDBRating,
+				Genres:      details.Genres,
+				Runtime:     details.Runtime,
+				Tagline:     details.Tagline,
+				Status:      details.Status,
+				TotalCount:  details.TotalCount,
+				LikeCount:   details.LikeCount,
+				LoveCount:   details.LoveCount,
+				HateCount:   details.HateCount,
+				SkipCount:   details.SkipCount,
+				DislikeCount: details.DislikeCount,
+				UserReaction: details.UserReaction,
+			})
+			if len(validMovies) == 2 {
+				break
+			}
+		}
+
+		if len(validMovies) > 0 {
 			return &GenerateResult{
-				Suggestions:    []MovieDetails{},
+				Suggestions:    validMovies,
 				GenerationDate: todayLog.Date,
 				Regeneration:   false,
-				Finished:       true, // no more movies
+				Finished:       false,
 			}, nil
 		}
 
-		// Has movie_ids - return them
-		count := 2
-		if len(todayLog.MovieIDs) < 2 {
-			count = len(todayLog.MovieIDs)
-		}
-		movieIDs := todayLog.MovieIDs[:count]
-		movieDetails, err := s.getMovieDetails(ctx, movieIDs, userID)
-		if err != nil {
-			log.Error("failed to get movie details", logger.Err(err))
-			return nil, fmt.Errorf("failed to get movie details: %w", err)
-		}
-
+		// Today's log fully stale — don't regenerate, just report no valid suggestions
+		log.Warn("all today's log TMDB IDs invalid, not regenerating", logger.Int("log_size", len(todayLog.MovieIDs)))
 		return &GenerateResult{
-			Suggestions:    movieDetails,
+			Suggestions:    []MovieDetails{},
 			GenerationDate: todayLog.Date,
 			Regeneration:   false,
-			Finished:       false,
+			Finished:       true,
+			Message:        "No valid suggestions available",
 		}, nil
 	}
 
-	// Step 3: No logs exist or empty - generate fresh
+	// Step 3: No existing valid log — generate fresh
 	movieIDs, err := s.generateNewSuggestions(ctx, userID)
 	if err != nil {
+		if strings.Contains(err.Error(), "429") || strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") || strings.Contains(err.Error(), "quota") {
+			log.Warn("gemini quota exceeded, returning graceful response")
+			return &GenerateResult{
+				Suggestions:    []MovieDetails{},
+				GenerationDate: time.Now().Format("2006-01-02"),
+				Regeneration:   true,
+				Finished:       true,
+				Message:        "Suggestion quota exhausted, try again later",
+				IsExhausted:    true,
+			}, nil
+		}
 		return nil, err
 	}
 
-	// Save to today's log
+	// Save to today's log (overwrite stale one)
 	if err := s.repo.CreateTodayLog(ctx, userID, movieIDs); err != nil {
 		log.Error("failed to create today's log", logger.Err(err))
 		return nil, fmt.Errorf("failed to create today's log: %w", err)
 	}
 
-	// Return first 2 movies
-	count := 2
-	if len(movieIDs) < 2 {
-		count = len(movieIDs)
-	}
-	movieDetails, err := s.getMovieDetails(ctx, movieIDs[:count], userID)
-	if err != nil {
-		log.Error("failed to get movie details", logger.Err(err))
-		return nil, fmt.Errorf("failed to get movie details: %w", err)
+	// Return first 2 valid movies
+	var validMovies []MovieDetails
+	for _, tmdbID := range movieIDs {
+		details, err := s.moviesSvc.GetMovieByID(ctx, tmdbID, userID)
+		if err != nil {
+			log.Warn("skipping stale TMDB ID", logger.Int("tmdb_id", tmdbID))
+			continue
+		}
+		validMovies = append(validMovies, MovieDetails{
+			TMDBID:      details.TMDBID,
+			Title:       details.Title,
+			PosterURL:   details.PosterURL,
+			BackdropURL: details.BackdropURL,
+			ReleaseYear: details.ReleaseYear,
+			TMDBRating:  details.TMDBRating,
+			Genres:      details.Genres,
+			Runtime:     details.Runtime,
+			Tagline:     details.Tagline,
+			Status:      details.Status,
+			TotalCount:  details.TotalCount,
+			LikeCount:   details.LikeCount,
+			LoveCount:   details.LoveCount,
+			HateCount:   details.HateCount,
+			SkipCount:   details.SkipCount,
+			DislikeCount: details.DislikeCount,
+			UserReaction: details.UserReaction,
+		})
+		if len(validMovies) == 2 {
+			break
+		}
 	}
 
 	now := time.Now().Format("2006-01-02")
+	if len(validMovies) == 0 {
+		return &GenerateResult{
+			Suggestions:    []MovieDetails{},
+			GenerationDate: now,
+			Regeneration:   true,
+			Finished:       true,
+			Message:        "No valid suggestions found",
+		}, nil
+	}
+
 	return &GenerateResult{
-		Suggestions:    movieDetails,
+		Suggestions:    validMovies,
 		GenerationDate: now,
 		Regeneration:   false,
 		Finished:       false,
@@ -249,6 +327,11 @@ func (s *Service) GetNextMovie(ctx context.Context, userID int64, currentTMDBID 
 	if err != nil {
 		log.Error("failed to get next movie details", logger.Err(err))
 		return nil, fmt.Errorf("failed to get next movie details: %w", err)
+	}
+
+	if len(movieDetails) == 0 {
+		log.Error("movie details empty after fetch", zap.Int("tmdbID", *nextTMDBID))
+		return nil, fmt.Errorf("movie with TMDB ID %d not found", *nextTMDBID)
 	}
 
 	return &NextResult{

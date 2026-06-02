@@ -41,7 +41,9 @@ func (s *Service) AddReaction(ctx context.Context, userID int64, tmdbID int, rea
 	}
 
 	if err := s.repo.RemoveFromDailyGenerationLog(ctx, userID, tmdbID); err != nil {
-		log.Error("failed to remove tmdbid from generation log", logger.Err(err))
+		log.Error("failed to remove tmdbid from generation log", logger.Err(err), logger.Int("tmdb_id", tmdbID))
+	} else {
+		log.Info("removed tmdbid from generation log", logger.Int("tmdb_id", tmdbID))
 	}
 
 	return nil
