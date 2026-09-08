@@ -781,8 +781,8 @@ func (s *Service) DeleteSession(ctx context.Context, userID int64, sessionID str
 			return nil, fmt.Errorf("failed to get user: %w", err)
 		}
 
-		// Generate new tokens
-		accessToken, jti, err := jwt.GenerateAccessToken(user.ID, user.Email, user.Role, user.IsVerified, user.IsFirstLogin)
+		// Generate new tokens (user logging in via magic link is an existing user)
+		accessToken, jti, err := jwt.GenerateAccessToken(user.ID, user.Email, user.Role, user.IsVerified, false)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate access token: %w", err)
 		}
@@ -798,11 +798,13 @@ func (s *Service) DeleteSession(ctx context.Context, userID int64, sessionID str
 			return nil, fmt.Errorf("failed to create session: %w", err)
 		}
 
+		_ = s.repo.SetUserFirstLoginFalse(ctx, user.ID)
+
 		return &DeleteSessionResponse{
 			Message:         "Session deleted and new session created",
 			AccessToken:     accessToken,
 			RefreshToken:    refreshToken,
-			NeedsOnboarding: user.IsFirstLogin,
+			NeedsOnboarding: false,
 		}, nil
 	}
 

@@ -13,6 +13,7 @@ import (
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/cloudinary"
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/email"
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/hash"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
 )
 
 var (
@@ -112,30 +113,54 @@ func (s *Service) GetProfile(ctx context.Context, userID int64) (*GetProfileResp
 
 // UpdateProfile updates the user's name and/or profile picture
 func (s *Service) UpdateProfile(ctx context.Context, userID int64, userPublicID string, req *UpdateProfileRequest) (*UpdateProfileResponse, error) {
+	user, err := s.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user profile: %w", err)
+	}
+
+	publicID := user.PublicID
+	if publicID == "" {
+		publicID = userPublicID
+	}
+	if publicID == "" {
+		publicID = fmt.Sprintf("usr_%d", userID)
+	}
+
 	var profileURL *string
 	if len(req.ProfilePicture) > 0 {
-		url, err := cloudinary.UploadProfilePicture(ctx, req.ProfilePicture, userPublicID)
+		url, err := cloudinary.UploadProfilePicture(ctx, req.ProfilePicture, publicID)
 		if err != nil {
+			logger.Error("Failed to upload profile picture to Cloudinary", logger.Err(err))
 			return nil, fmt.Errorf("failed to upload profile picture: %w", err)
 		}
 		profileURL = &url
+	} else if req.RemoveAvatar {
+		_ = cloudinary.DeleteProfilePicture(ctx, publicID)
+		_ = s.repo.ClearProfilePicture(ctx, userID)
 	}
 
-	if req.Name == "" && profileURL == nil && req.SmartSuggest == nil {
+	nameToUpdate := req.Name
+	if req.Name == user.Name {
+		nameToUpdate = ""
+	}
+
+	if nameToUpdate == "" && profileURL == nil && req.SmartSuggest == nil && !req.RemoveAvatar {
 		return nil, ErrNoChangesDetected
 	}
 
-	if err := s.repo.UpdateProfile(ctx, userID, req.Name, profileURL, req.SmartSuggest); err != nil {
-		return nil, fmt.Errorf("failed to update profile: %w", err)
+	if nameToUpdate != "" || profileURL != nil || req.SmartSuggest != nil {
+		if err := s.repo.UpdateProfile(ctx, userID, nameToUpdate, profileURL, req.SmartSuggest); err != nil {
+			return nil, fmt.Errorf("failed to update profile: %w", err)
+		}
 	}
 
-	user, _ := s.repo.GetUserByID(ctx, userID)
+	updatedUser, _ := s.repo.GetUserByID(ctx, userID)
 
 	return &UpdateProfileResponse{
 		Message:      "Profile updated successfully",
-		ProfileURL:   user.ProfileURL,
-		Name:         user.Name,
-		SmartSuggest: &user.SmartSuggest,
+		ProfileURL:   updatedUser.ProfileURL,
+		Name:         updatedUser.Name,
+		SmartSuggest: &updatedUser.SmartSuggest,
 	}, nil
 }
 

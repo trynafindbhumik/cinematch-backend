@@ -14,12 +14,15 @@ import (
 )
 
 const (
-	apiURL       = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-	maxRetries   = 3
-	timeout      = 30 * time.Second
+	defaultModel = "gemini-3.5-flash-lite"
+	maxRetries   = 2
+	timeout      = 45 * time.Second
 )
 
-var apiKey string
+var (
+	apiKey    string
+	modelName string
+)
 
 func Load() error {
 	godotenv.Load()
@@ -27,7 +30,16 @@ func Load() error {
 	if apiKey == "" {
 		return fmt.Errorf("GEMINI_API_KEY environment variable not set")
 	}
+	modelName = os.Getenv("GEMINI_MODEL")
+	if modelName == "" {
+		modelName = defaultModel
+	}
 	return nil
+}
+
+type ClientInterface interface {
+	GetMovieSuggestions(ctx context.Context, systemPrompt string, userPrompt string) (*RecommendationsResponse, error)
+	GetWeeklyMovieSuggestions(ctx context.Context, systemPrompt string, userPrompt string) (*RecommendationsResponse, error)
 }
 
 type Client struct {
@@ -49,31 +61,31 @@ type Part struct {
 }
 
 type GenerationConfig struct {
-	ResponseMimeType string `json:"responseMimeType"`
-	ResponseJsonSchema *ResponseJsonSchema `json:"responseJsonSchema,omitempty"`
+	ResponseMimeType string          `json:"responseMimeType"`
+	ResponseSchema   *ResponseSchema `json:"responseSchema,omitempty"`
 }
 
-type ResponseJsonSchema struct {
-	Type       string                  `json:"type"`
-	Properties map[string]SchemaProp   `json:"properties"`
-	Required   []string                `json:"required"`
+type ResponseSchema struct {
+	Type       string                `json:"type"`
+	Properties map[string]SchemaProp `json:"properties,omitempty"`
+	Required   []string              `json:"required,omitempty"`
 }
 
 type SchemaProp struct {
-	Type        string   `json:"type"`
-	Description string   `json:"description,omitempty"`
+	Type        string       `json:"type"`
+	Description string       `json:"description,omitempty"`
 	Items       *SchemaItems `json:"items,omitempty"`
 }
 
 type SchemaItems struct {
-	Type string `json:"type"`
+	Type       string                `json:"type"`
 	Properties map[string]SchemaProp `json:"properties,omitempty"`
 }
 
 type GenerateRequest struct {
-	Contents           []Content       `json:"contents"`
-	SystemInstruction  *Content        `json:"systemInstruction,omitempty"`
-	GenerationConfig   GenerationConfig `json:"generationConfig"`
+	Contents          []Content        `json:"contents"`
+	SystemInstruction *Content         `json:"systemInstruction,omitempty"`
+	GenerationConfig  GenerationConfig `json:"generationConfig"`
 }
 
 type Candidate struct {
@@ -89,30 +101,27 @@ type RecommendationsResponse struct {
 }
 
 type Recommendation struct {
-	TMDBID      int      `json:"tmdb_id"`
-	Title       string   `json:"title"`
-	Year        int      `json:"year"`
-	Genre       []string `json:"genre"`
-	MatchReason string  `json:"match_reason"`
+	TMDBID      int         `json:"tmdb_id"`
+	Title       string      `json:"title"`
+	Year        interface{} `json:"year"`
+	Genre       interface{} `json:"genre"`
+	MatchReason string      `json:"match_reason"`
 }
 
 func (c *Client) generateContent(ctx context.Context, req GenerateRequest) (*GenerateResponse, error) {
-	url := fmt.Sprintf("%s?key=%s", apiURL, apiKey)
+	model := modelName
+	if model == "" {
+		model = defaultModel
+	}
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", model, apiKey)
 
 	jsonData, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-
 	var lastErr error
 	for attempt := 1; attempt <= maxRetries; attempt++ {
-		// Create a fresh request body for each attempt
 		bodyReader := bytes.NewReader(jsonData)
 		httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bodyReader)
 		if err != nil {
@@ -124,21 +133,19 @@ func (c *Client) generateContent(ctx context.Context, req GenerateRequest) (*Gen
 		if err != nil {
 			lastErr = err
 			if attempt < maxRetries {
-				time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
+				time.Sleep(time.Duration(1<<attempt) * 500 * time.Millisecond) // 1s, 2s
 				continue
 			}
 			return nil, fmt.Errorf("failed to execute request after %d attempts: %w", maxRetries, lastErr)
 		}
 
-		var result GenerateResponse
 		bodyBytes, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		resp.Body = nil
 
 		if err != nil {
 			lastErr = fmt.Errorf("failed to read response body: %w", err)
 			if attempt < maxRetries {
-				time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
+				time.Sleep(time.Duration(1<<attempt) * 500 * time.Millisecond)
 				continue
 			}
 			return nil, lastErr
@@ -146,17 +153,22 @@ func (c *Client) generateContent(ctx context.Context, req GenerateRequest) (*Gen
 
 		if resp.StatusCode != http.StatusOK {
 			lastErr = fmt.Errorf("Gemini API returned status %d, body: %s", resp.StatusCode, string(bodyBytes))
+			// Do not retry on client errors like 400 Bad Request, 401 Unauthorized, 404 Not Found
+			if resp.StatusCode == http.StatusBadRequest || resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusNotFound {
+				return nil, lastErr
+			}
 			if attempt < maxRetries {
-				time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
+				time.Sleep(time.Duration(1<<attempt) * 1000 * time.Millisecond) // 2s, 4s for server/rate limit errors
 				continue
 			}
 			return nil, lastErr
 		}
 
+		var result GenerateResponse
 		if err := json.Unmarshal(bodyBytes, &result); err != nil {
 			lastErr = err
 			if attempt < maxRetries {
-				time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
+				time.Sleep(time.Duration(1<<attempt) * 500 * time.Millisecond)
 				continue
 			}
 			return nil, fmt.Errorf("failed to decode response: %w", err)
@@ -180,37 +192,37 @@ func (c *Client) GetMovieSuggestions(ctx context.Context, systemPrompt string, u
 		SystemInstruction: &Content{Parts: []Part{{Text: systemPrompt}}},
 		GenerationConfig: GenerationConfig{
 			ResponseMimeType: "application/json",
-			ResponseJsonSchema: &ResponseJsonSchema{
-				Type: "object",
+			ResponseSchema: &ResponseSchema{
+				Type: "OBJECT",
 				Properties: map[string]SchemaProp{
 					"recommendations": {
-						Type: "array",
-						Description: "Array of 20 movie recommendations",
+						Type:        "ARRAY",
+						Description: "Array of movie recommendations",
 						Items: &SchemaItems{
-							Type: "object",
+							Type: "OBJECT",
 							Properties: map[string]SchemaProp{
 								"tmdb_id": {
-									Type:        "integer",
+									Type:        "INTEGER",
 									Description: "TMDB movie ID (must be positive integer)",
 								},
 								"title": {
-									Type:        "string",
+									Type:        "STRING",
 									Description: "Movie title",
 								},
 								"year": {
-									Type:        "integer",
-									Description: "Release year between 1970 and 2025",
+									Type:        "INTEGER",
+									Description: "4-digit release year e.g. 2023",
 								},
 								"genre": {
-									Type:        "array",
+									Type:        "ARRAY",
 									Description: "Array of 1-3 genre names",
 									Items: &SchemaItems{
-										Type: "string",
+										Type: "STRING",
 									},
 								},
 								"match_reason": {
-									Type:        "string",
-									Description: "1-2 sentence explanation tying to user's psychology (10-50 words)",
+									Type:        "STRING",
+									Description: "1-2 sentence explanation of cinematic connections (10-50 words)",
 								},
 							},
 						},
@@ -257,36 +269,36 @@ func (c *Client) GetWeeklyMovieSuggestions(ctx context.Context, systemPrompt str
 		SystemInstruction: &Content{Parts: []Part{{Text: systemPrompt}}},
 		GenerationConfig: GenerationConfig{
 			ResponseMimeType: "application/json",
-			ResponseJsonSchema: &ResponseJsonSchema{
-				Type: "object",
+			ResponseSchema: &ResponseSchema{
+				Type: "OBJECT",
 				Properties: map[string]SchemaProp{
 					"recommendations": {
-						Type:        "array",
+						Type:        "ARRAY",
 						Description: "Array of exactly 5 movie recommendations",
 						Items: &SchemaItems{
-							Type: "object",
+							Type: "OBJECT",
 							Properties: map[string]SchemaProp{
 								"tmdb_id": {
-									Type:        "integer",
+									Type:        "INTEGER",
 									Description: "TMDB movie ID (must be positive integer)",
 								},
 								"title": {
-									Type:        "string",
+									Type:        "STRING",
 									Description: "Movie title",
 								},
 								"year": {
-									Type:        "integer",
-									Description: "Release year between 1970 and 2026",
+									Type:        "INTEGER",
+									Description: "4-digit release year e.g. 2023",
 								},
 								"genre": {
-									Type:        "array",
+									Type:        "ARRAY",
 									Description: "Array of 1-3 genre names",
 									Items: &SchemaItems{
-										Type: "string",
+										Type: "STRING",
 									},
 								},
 								"match_reason": {
-									Type:        "string",
+									Type:        "STRING",
 									Description: "1-2 sentence explanation of cinematic connections (10-50 words)",
 								},
 							},

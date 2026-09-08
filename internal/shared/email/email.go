@@ -85,14 +85,19 @@ type Attachment struct {
 }
 
 var (
-	resendClient     *resend.Client
-	resendClientOnce sync.Once
+	resendClient *resend.Client
+	currentKey   string
+	clientMutex  sync.Mutex
 )
 
 func getClient() *resend.Client {
-	resendClientOnce.Do(func() {
+	clientMutex.Lock()
+	defer clientMutex.Unlock()
+
+	if resendClient == nil || currentKey != emailCfg.APIKey {
+		currentKey = emailCfg.APIKey
 		resendClient = resend.NewClient(emailCfg.APIKey)
-	})
+	}
 	return resendClient
 }
 

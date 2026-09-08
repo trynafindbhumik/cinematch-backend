@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/trynafindbhumik/cinematch-backend/internal/db"
@@ -32,7 +33,9 @@ func (r *Repository) GetAllStreamingServices(ctx context.Context, cursor string,
 	var query string
 	var args []interface{}
 
-	if cursor == "" {
+	cursorID, _ := strconv.ParseInt(cursor, 10, 16)
+
+	if cursor == "" || cursorID <= 0 {
 		query = `
 			SELECT id, name, icon_url
 			FROM streaming_services
@@ -48,7 +51,7 @@ func (r *Repository) GetAllStreamingServices(ctx context.Context, cursor string,
 			ORDER BY id ASC
 			LIMIT $2
 		`
-		args = []interface{}{cursor, limit + 1}
+		args = []interface{}{cursorID, limit + 1}
 	}
 
 	rows, err := db.Pool().Query(ctx, query, args...)
@@ -88,7 +91,9 @@ func (r *Repository) SearchStreamingServices(ctx context.Context, query string, 
 	var q string
 	var args []interface{}
 
-	if cursor == "" {
+	cursorID, _ := strconv.ParseInt(cursor, 10, 16)
+
+	if cursor == "" || cursorID <= 0 {
 		q = `
 			SELECT id, name, icon_url
 			FROM streaming_services
@@ -107,7 +112,7 @@ func (r *Repository) SearchStreamingServices(ctx context.Context, query string, 
 			ORDER BY name ASC
 			LIMIT $3
 		`
-		args = []interface{}{searchQuery, cursor, limit + 1}
+		args = []interface{}{searchQuery, cursorID, limit + 1}
 	}
 
 	rows, err := db.Pool().Query(ctx, q, args...)

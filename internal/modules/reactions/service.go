@@ -3,17 +3,23 @@ package reactions
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/tmdb"
 	"go.uber.org/zap"
 )
 
 type Service struct {
-	repo *Repository
+	repo       *Repository
+	tmdbClient *tmdb.Client
 }
 
-func NewService(repo *Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo *Repository, tmdbClient *tmdb.Client) *Service {
+	return &Service{
+		repo:       repo,
+		tmdbClient: tmdbClient,
+	}
 }
 
 func (s *Service) AddReaction(ctx context.Context, userID int64, tmdbID int, reaction string) error {
@@ -21,8 +27,30 @@ func (s *Service) AddReaction(ctx context.Context, userID int64, tmdbID int, rea
 
 	movieID, err := s.repo.GetMovieIDByTMDBID(ctx, tmdbID)
 	if err != nil {
-		log.Error("movie not found", logger.Err(err), logger.Int("tmdb_id", tmdbID))
-		return fmt.Errorf("movie not found: %w", err)
+		// Movie not in local DB - try fetching from TMDB and upserting
+		if s.tmdbClient != nil {
+			details, fetchErr := s.tmdbClient.GetMovieDetails(tmdbID)
+			if fetchErr == nil {
+				genres := make([]string, 0, len(details.Genres))
+				for _, g := range details.Genres {
+					genres = append(genres, g.Name)
+				}
+				year := 0
+				if len(details.ReleaseDate) >= 4 {
+					year, _ = strconv.Atoi(details.ReleaseDate[:4])
+				}
+				rating := int(details.VoteAverage * 10)
+				upsertedID, upsertErr := s.repo.UpsertMovie(ctx, tmdbID, details.Title, tmdb.PosterURL(details.PosterPath), tmdb.BackdropURL(details.BackdropPath), year, rating, genres)
+				if upsertErr == nil {
+					movieID = upsertedID
+					err = nil
+				}
+			}
+		}
+		if err != nil {
+			log.Error("movie not found", logger.Err(err), logger.Int("tmdb_id", tmdbID))
+			return fmt.Errorf("movie not found: %w", err)
+		}
 	}
 
 	previousReaction, err := s.repo.GetPreviousReaction(ctx, userID, movieID)

@@ -2,7 +2,11 @@ package middleware
 
 // User context helpers for extracting authenticated user data from gin context.
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+)
 
 // GetUserID extracts user ID from gin context.
 // Returns 0 if user is not authenticated.
@@ -32,7 +36,12 @@ func GetUserRole(c *gin.Context) string {
 // GetUserPublicID extracts user public ID from gin context.
 func GetUserPublicID(c *gin.Context) string {
 	if pid, exists := c.Get("userPublicID"); exists {
-		return pid.(string)
+		if s, ok := pid.(string); ok {
+			return s
+		}
+		if id, ok := pid.(int64); ok {
+			return fmt.Sprintf("usr_%d", id)
+		}
 	}
 	return ""
 }

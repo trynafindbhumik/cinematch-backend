@@ -3,6 +3,7 @@ package profile
 // Authentication middleware validating JWT tokens.
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -37,7 +38,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("userRole", claims.Role)
 		c.Set("isVerified", claims.IsVerified)
 		c.Set("isFirstLogin", claims.IsFirstLogin)
-		c.Set("userPublicID", claims.UserID)
+		c.Set("userPublicID", fmt.Sprintf("usr_%d", claims.UserID))
 
 		c.Next()
 	}
@@ -68,7 +69,7 @@ func AuthMiddlewareOptional() gin.HandlerFunc {
 		c.Set("userRole", claims.Role)
 		c.Set("isVerified", claims.IsVerified)
 		c.Set("isFirstLogin", claims.IsFirstLogin)
-		c.Set("userPublicID", claims.UserID)
+		c.Set("userPublicID", fmt.Sprintf("usr_%d", claims.UserID))
 
 		c.Next()
 	}

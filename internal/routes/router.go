@@ -238,6 +238,7 @@ func SetupRouter(
 	reactionsGroup.Use(profile.AuthMiddleware())
 	{
 		reactionsGroup.POST("", reactionsHandler.AddReaction)
+		reactionsGroup.DELETE("/:tmdb_id", reactionsHandler.RemoveReaction)
 	}
 
 	return r

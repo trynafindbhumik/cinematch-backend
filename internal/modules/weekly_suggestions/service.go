@@ -3,6 +3,7 @@ package weekly_suggestions
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/gemini"
@@ -40,6 +41,7 @@ type WeeklyGenerateResult struct {
 	Suggestions      []Movie
 	GeneratedAt      string
 	AlreadyGenerated bool
+	RemainingTries   int
 }
 
 func (s *Service) GetWeeklySuggestions(ctx context.Context, userID int64) (*WeeklyGenerateResult, error) {
@@ -54,17 +56,32 @@ func (s *Service) GetWeeklySuggestions(ctx context.Context, userID int64) (*Week
 		return nil, fmt.Errorf("failed to check generation status: %w", err)
 	}
 
+	remTries, _ := s.repo.GetRemainingTries(ctx, userID, weekStart)
+
 	if alreadyGenerated {
 		log.Info("weekly suggestions already generated")
 		movies, err := s.repo.GetWeeklySuggestions(ctx, userID, weekStart)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get existing suggestions: %w", err)
 		}
+
+		if len(movies) == 0 {
+			// Fallback 1: check if there are movies in user_suggestion_movies (tries table)
+			movies, _ = s.repo.GetLatestTrySuggestions(ctx, userID, weekStart)
+		}
+
+		if len(movies) == 0 {
+			// Fallback 2: if still 0 movies, generate new weekly suggestions
+			log.Warn("alreadyGenerated was true but no movies found in DB, generating fresh suggestions")
+			return s.generateWeeklySuggestions(ctx, userID, weekStart)
+		}
+
 		return &WeeklyGenerateResult{
 			WeekStart:        weekStart,
 			Suggestions:      movies,
 			GeneratedAt:      time.Now().Format(time.RFC3339),
 			AlreadyGenerated: true,
+			RemainingTries:   remTries,
 		}, nil
 	}
 
@@ -123,12 +140,15 @@ func (s *Service) generateWeeklySuggestions(ctx context.Context, userID int64, w
 	geminiResp, err := s.gemini.GetWeeklyMovieSuggestions(ctx, weeklySystemPrompt, userPrompt)
 	if err != nil {
 		log.Error("gemini call failed", logger.Err(err))
+		if strings.Contains(err.Error(), "429") || strings.Contains(err.Error(), "RESOURCE_EXHAUSTED") || strings.Contains(err.Error(), "quota") {
+			return nil, fmt.Errorf("AI suggestion quota exhausted, please try again later")
+		}
 		return nil, fmt.Errorf("gemini call failed: %w", err)
 	}
 
-	if len(geminiResp.Recommendations) != numWeeklySuggestions {
-		log.Error("unexpected recommendation count", logger.Int("expected", numWeeklySuggestions), logger.Int("got", len(geminiResp.Recommendations)))
-		return nil, fmt.Errorf("expected %d suggestions, got %d", numWeeklySuggestions, len(geminiResp.Recommendations))
+	if len(geminiResp.Recommendations) == 0 {
+		log.Error("no recommendations returned from gemini")
+		return nil, fmt.Errorf("no recommendations returned from AI")
 	}
 
 	suggestionID, err := s.repo.CreateWeeklySuggestion(ctx, userID, weekStart)
@@ -139,20 +159,20 @@ func (s *Service) generateWeeklySuggestions(ctx context.Context, userID int64, w
 
 	suggestions := make([]Movie, 0, numWeeklySuggestions)
 
-	for i, rec := range geminiResp.Recommendations {
+	for _, rec := range geminiResp.Recommendations {
 		details, err := s.tmdbClient.GetMovieDetails(rec.TMDBID)
+		realTMDBID := rec.TMDBID
 		if err != nil {
-			log.Warn("failed to get TMDB details, using AI data", logger.Int("tmdb_id", rec.TMDBID), logger.Err(err))
-			posterURL := tmdb.PosterURL("")
-			suggestions = append(suggestions, Movie{
-				TMDBID:      rec.TMDBID,
-				Title:       rec.Title,
-				PosterURL:   posterURL,
-				Genres:      rec.Genre,
-				ReleaseYear: rec.Year,
-				TMDBRating:  0,
-				MatchReason: rec.MatchReason,
-			})
+			log.Warn("TMDB direct lookup failed, searching by title", logger.Int("tmdb_id", rec.TMDBID), logger.String("title", rec.Title), logger.Err(err))
+			searchRes, searchErr := s.tmdbClient.SearchMovies(rec.Title, 1)
+			if searchErr == nil && len(searchRes.Results) > 0 {
+				realTMDBID = searchRes.Results[0].ID
+				details, err = s.tmdbClient.GetMovieDetails(realTMDBID)
+			}
+		}
+
+		if err != nil || details == nil {
+			log.Warn("skipping unresolvable TMDB ID", logger.Int("tmdb_id", rec.TMDBID), logger.String("title", rec.Title))
 			continue
 		}
 
@@ -169,17 +189,19 @@ func (s *Service) generateWeeklySuggestions(ctx context.Context, userID int64, w
 		}
 		tmdbRating := int(details.VoteAverage * 10)
 
-		movieID, err := s.repo.UpsertMovie(ctx, rec.TMDBID, details.Title, posterURL, backdropURL, genreNames, releaseYear, tmdbRating)
+		movieID, err := s.repo.UpsertMovie(ctx, realTMDBID, details.Title, posterURL, backdropURL, genreNames, releaseYear, tmdbRating)
 		if err != nil {
-			log.Warn("failed to upsert movie", logger.Int("tmdb_id", rec.TMDBID), logger.Err(err))
+			log.Warn("failed to upsert movie", logger.Int("tmdb_id", realTMDBID), logger.Err(err))
+			continue
 		}
 
-		if err := s.repo.CreateWeeklySuggestionMovie(ctx, suggestionID, movieID, i+1); err != nil {
+		position := len(suggestions) + 1
+		if err := s.repo.CreateWeeklySuggestionMovie(ctx, suggestionID, movieID, position); err != nil {
 			log.Error("failed to create weekly suggestion movie", logger.Err(err))
 		}
 
 		suggestions = append(suggestions, Movie{
-			TMDBID:      rec.TMDBID,
+			TMDBID:      realTMDBID,
 			Title:       details.Title,
 			PosterURL:   posterURL,
 			Genres:      genreNames,
@@ -187,12 +209,20 @@ func (s *Service) generateWeeklySuggestions(ctx context.Context, userID int64, w
 			TMDBRating:  tmdbRating,
 			MatchReason: rec.MatchReason,
 		})
+
+		if len(suggestions) == numWeeklySuggestions {
+			break
+		}
 	}
 
+	_ = s.repo.SyncInitialTryToUserSuggestions(ctx, userID, weekStart, suggestionID)
+	remTries, _ := s.repo.GetRemainingTries(ctx, userID, weekStart)
+
 	return &WeeklyGenerateResult{
-		WeekStart:   weekStart,
-		Suggestions: suggestions,
-		GeneratedAt: time.Now().Format(time.RFC3339),
+		WeekStart:      weekStart,
+		Suggestions:    suggestions,
+		GeneratedAt:    time.Now().Format(time.RFC3339),
+		RemainingTries: remTries,
 	}, nil
 }
 
@@ -214,25 +244,33 @@ func (s *Service) buildUserPrompt(favorites, watchlist []FavoriteMovie, reaction
 		prompt += "- Past Reactions: (none yet)\n"
 	}
 
-	prompt += "\nEXCLUDED TMDB IDs (already seen/reacted): "
-	if len(excludedIDs) > 0 {
-		for i, id := range excludedIDs {
-			if i > 0 {
-				prompt += ", "
-			}
-			prompt += fmt.Sprintf("%d", id)
-		}
-	} else {
-		prompt += "(none)"
+	var seenTitles []string
+	for _, f := range favorites {
+		seenTitles = append(seenTitles, f.Title)
 	}
-	prompt += "\n"
+	for _, w := range watchlist {
+		seenTitles = append(seenTitles, w.Title)
+	}
+	for _, r := range reactions {
+		seenTitles = append(seenTitles, r.Title)
+	}
+
+	prompt += "\nDO NOT RECOMMEND ANY OF THE FOLLOWING ALREADY SEEN/REACTED TITLES:\n"
+	if len(seenTitles) > 0 {
+		if len(seenTitles) > 50 {
+			seenTitles = seenTitles[:50]
+		}
+		prompt += strings.Join(seenTitles, ", ") + "\n"
+	} else {
+		prompt += "(none)\n"
+	}
 
 	prompt += fmt.Sprintf(`
 RULES:
 - Recommend exactly %d movies
 - All must be UNREPRESENTED in favorites, watchlist, watched, and reactions
 - Year must be 1970-2026
-- TMDB ID must be a positive integer
+- TMDB ID must be a positive integer corresponding to the movie in TMDB
 - Match reason must be 10-50 words explaining cinematic connections (style, theme, director, similar films)
 
 OUTPUT FORMAT:
