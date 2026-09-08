@@ -102,6 +102,14 @@ func (r *Repository) SetUserVerified(ctx context.Context, userID int64) error {
 	return err
 }
 
+// SetUserFirstLoginFalse marks user first login as completed (false)
+func (r *Repository) SetUserFirstLoginFalse(ctx context.Context, userID int64) error {
+	_, err := db.Pool().Exec(ctx, `
+		UPDATE users SET is_first_login = false WHERE id = $1
+	`, userID)
+	return err
+}
+
 // SetUserUnverified marks user as email unverified
 func (r *Repository) SetUserUnverified(ctx context.Context, userID int64) error {
 	_, err := db.Pool().Exec(ctx, `
@@ -422,9 +430,12 @@ func (r *Repository) RotateRefreshTokenByUserID(ctx context.Context, userID int6
 	refreshTokenHash := hash.HashSHA256(newRefreshToken)
 	_, err := db.Pool().Exec(ctx, `
 		UPDATE sessions SET refresh_token_hash = $1, expires_at = now() + interval '30 days'
-		WHERE user_id = $2 AND (expires_at IS NULL OR expires_at > now())
-		ORDER BY created_at DESC
-		LIMIT 1
+		WHERE id = (
+			SELECT id FROM sessions
+			WHERE user_id = $2 AND (expires_at IS NULL OR expires_at > now())
+			ORDER BY created_at DESC
+			LIMIT 1
+		)
 	`, refreshTokenHash, userID)
 	return err
 }

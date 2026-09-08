@@ -2,9 +2,12 @@ package profile
 
 import (
 	"errors"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/trynafindbhumik/cinematch-backend/internal/shared/logger"
 	"github.com/trynafindbhumik/cinematch-backend/internal/shared/middleware"
 )
 
@@ -71,7 +74,7 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	userPublicID := c.GetString("userPublicID")
+	userPublicID := middleware.GetUserPublicID(c)
 
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "failed to parse form data"})
@@ -87,9 +90,20 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		smartSuggestBool = &val
 	}
 
+	removeAvatar := c.PostForm("removeAvatar") == "true"
+
 	var profilePicture []byte
 	file, err := c.FormFile("profile_picture")
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		logger.Warn("Failed to read profile_picture form file", logger.Err(err))
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "invalid profile picture file: " + err.Error()})
+		return
+	}
 	if err == nil {
+		if file.Size == 0 {
+			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "profile picture file is empty (0 bytes)"})
+			return
+		}
 		if file.Size > 5*1024*1024 {
 			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "file size exceeds 5MB limit"})
 			return
@@ -97,13 +111,13 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 
 		src, err := file.Open()
 		if err != nil {
-			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "failed to read file"})
+			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "failed to open uploaded file"})
 			return
 		}
 		defer src.Close()
 
-		buf := make([]byte, file.Size)
-		if _, err := src.Read(buf); err != nil {
+		buf, err := io.ReadAll(src)
+		if err != nil {
 			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "failed to read file content"})
 			return
 		}
@@ -113,6 +127,7 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 	req := &UpdateProfileRequest{
 		Name:           name,
 		ProfilePicture: profilePicture,
+		RemoveAvatar:   removeAvatar,
 		SmartSuggest:   smartSuggestBool,
 	}
 
@@ -122,7 +137,12 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "no changes provided"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "failed to update profile"})
+		logger.Error("Failed to update profile", logger.Err(err))
+		userMsg := "Failed to update profile. Please try again."
+		if strings.Contains(err.Error(), "file size exceeds") || strings.Contains(err.Error(), "empty") {
+			userMsg = err.Error()
+		}
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: userMsg})
 		return
 	}
 

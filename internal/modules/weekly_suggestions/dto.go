@@ -5,6 +5,7 @@ type WeeklySuggestionResponse struct {
 	Suggestions      []Movie  `json:"suggestions"`
 	GeneratedAt      string   `json:"generated_at"`
 	AlreadyGenerated bool     `json:"already_generated"`
+	RemainingTries   int      `json:"remaining_tries"`
 }
 
 type Movie struct {
