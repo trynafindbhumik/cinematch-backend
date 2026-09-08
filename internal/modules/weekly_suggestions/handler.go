@@ -55,5 +55,6 @@ func (h *Handler) GetWeeklySuggestions(c *gin.Context) {
 		Suggestions:      result.Suggestions,
 		GeneratedAt:      result.GeneratedAt,
 		AlreadyGenerated: result.AlreadyGenerated,
+		RemainingTries:   result.RemainingTries,
 	})
 }

@@ -1,8 +1,8 @@
 package cloudinary
 
 import (
+	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
 	"os"
 
@@ -59,13 +59,9 @@ func UploadProfilePicture(ctx context.Context, imageData []byte, userPublicID st
 		return "", fmt.Errorf("failed to create Cloudinary client: %w", err)
 	}
 
-	// Convert to base64 data URI (Cloudinary expects this format)
-	// Supported formats: JPEG, PNG, WebP
-	dataURI := fmt.Sprintf("data:image/jpeg;base64,%s", base64.StdEncoding.EncodeToString(imageData))
-
-	// Upload with transformations for profile picture
+	// Upload with transformations for profile picture using binary reader
 	overwrite := true
-	uploadResult, err := cld.Upload.Upload(ctx, dataURI, uploader.UploadParams{
+	uploadResult, err := cld.Upload.Upload(ctx, bytes.NewReader(imageData), uploader.UploadParams{
 		Folder:         "cinematch/profiles",
 		PublicID:       userPublicID,
 		Overwrite:      &overwrite,
@@ -80,11 +76,32 @@ func UploadProfilePicture(ctx context.Context, imageData []byte, userPublicID st
 		return "", fmt.Errorf("failed to upload image: %w", err)
 	}
 
+	if uploadResult.Error.Message != "" {
+		logger.Error("Cloudinary API returned error",
+			logger.String("public_id", userPublicID),
+			logger.String("error_message", uploadResult.Error.Message),
+		)
+		return "", fmt.Errorf("cloudinary error: %s", uploadResult.Error.Message)
+	}
+
+	finalURL := uploadResult.SecureURL
+	if finalURL == "" {
+		finalURL = uploadResult.URL
+	}
+
+	if finalURL == "" {
+		logger.Error("Cloudinary returned empty URL",
+			logger.String("public_id", userPublicID),
+			logger.String("asset_id", uploadResult.AssetID),
+		)
+		return "", fmt.Errorf("cloudinary returned empty URL")
+	}
+
 	logger.Debug("Profile picture uploaded to Cloudinary",
 		logger.String("public_id", userPublicID),
-		logger.String("url", uploadResult.SecureURL),
+		logger.String("url", finalURL),
 	)
-	return uploadResult.SecureURL, nil
+	return finalURL, nil
 }
 
 func getEnv(key, defaultVal string) string {

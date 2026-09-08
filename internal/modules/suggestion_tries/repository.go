@@ -87,13 +87,11 @@ func (r *Repository) GetSuggestionsByID(ctx context.Context, suggestionID int64)
 	var movies []Movie
 	for rows.Next() {
 		var m Movie
-		var genres interface{}
+		var genres []string
 		if err := rows.Scan(&m.TMDBID, &m.Title, &m.PosterURL, &m.BackdropURL, &genres, &m.ReleaseYear, &m.TMDBRating); err != nil {
 			return nil, fmt.Errorf("failed to scan movie: %w", err)
 		}
-		if genres != nil {
-			m.Genres = parsePostgresArray(genres.(string))
-		}
+		m.Genres = genres
 		movies = append(movies, m)
 	}
 	return movies, rows.Err()
@@ -124,7 +122,7 @@ func (r *Repository) UpsertMovie(ctx context.Context, tmdbID int, title string, 
 // GetFavoriteMovies returns user's favorite movies
 func (r *Repository) GetFavoriteMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at
+		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at::text
 		FROM user_movies um
 		JOIN movies m ON um.movie_id = m.id
 		WHERE um.user_id = $1 AND um.is_favorite = true
@@ -178,7 +176,7 @@ func (r *Repository) GetReactionCount(ctx context.Context, userID int64) (int, e
 // GetWatchlistMovies returns user's watchlist movies
 func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at
+		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at::text
 		FROM user_movies um
 		JOIN movies m ON um.movie_id = m.id
 		WHERE um.user_id = $1 AND um.status = 'watchlist'
@@ -206,7 +204,7 @@ func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]Fa
 // GetReactions returns user's past reactions
 func (r *Repository) GetReactions(ctx context.Context, userID int64) ([]Reaction, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT ur.movie_id, m.tmdb_id, m.title, ur.reaction, ur.created_at
+		SELECT ur.movie_id, m.tmdb_id, m.title, ur.reaction, ur.created_at::text
 		FROM user_reaction ur
 		JOIN movies m ON ur.movie_id = m.id
 		WHERE ur.user_id = $1
@@ -361,4 +359,50 @@ func reactionsString(reactions []Reaction) string {
 		parts = append(parts, fmt.Sprintf("%s: %s", r.Title, r.Reaction))
 	}
 	return strings.Join(parts, ", ")
+}
+
+// UpdateWeeklySuggestions overwrites user_weekly_suggestions and user_weekly_suggestion_movies with newly generated try movies
+func (r *Repository) UpdateWeeklySuggestions(ctx context.Context, userID int64, weekStart string, movies []Movie) error {
+	var weeklySugID int64
+	err := db.Pool().QueryRow(ctx, `
+		INSERT INTO user_weekly_suggestions (user_id, week_start)
+		VALUES ($1, $2)
+		ON CONFLICT (user_id, week_start) DO UPDATE SET created_at = NOW()
+		RETURNING id
+	`, userID, weekStart).Scan(&weeklySugID)
+	if err != nil {
+		return fmt.Errorf("failed to upsert weekly suggestion: %w", err)
+	}
+
+	// Remove old weekly suggestion movies for this week
+	_, err = db.Pool().Exec(ctx, `
+		DELETE FROM user_weekly_suggestion_movies
+		WHERE suggestion_id = $1
+	`, weeklySugID)
+	if err != nil {
+		return fmt.Errorf("failed to clear old weekly suggestion movies: %w", err)
+	}
+
+	// Insert new movies
+	for i, m := range movies {
+		// Get internal movie_id from movies table
+		var movieID int
+		err := db.Pool().QueryRow(ctx, `SELECT id FROM movies WHERE tmdb_id = $1`, m.TMDBID).Scan(&movieID)
+		if err != nil {
+			continue
+		}
+		position := i + 1
+		_, _ = db.Pool().Exec(ctx, `
+			INSERT INTO user_weekly_suggestion_movies (suggestion_id, movie_id, title, poster_url, genres, release_year, tmdb_rating, position)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			ON CONFLICT (suggestion_id, movie_id) DO UPDATE SET
+				title = EXCLUDED.title,
+				poster_url = EXCLUDED.poster_url,
+				genres = EXCLUDED.genres,
+				release_year = EXCLUDED.release_year,
+				tmdb_rating = EXCLUDED.tmdb_rating,
+				position = EXCLUDED.position
+		`, weeklySugID, movieID, m.Title, m.PosterURL, m.Genres, m.ReleaseYear, m.TMDBRating, position)
+	}
+	return nil
 }

@@ -160,7 +160,7 @@ func main() {
 	suggestionTriesHandler := suggestion_tries.NewHandler(suggestionTriesService)
 
 	reactionsRepo := reactions.NewRepository()
-	reactionsService := reactions.NewService(reactionsRepo)
+	reactionsService := reactions.NewService(reactionsRepo, tmdbClient)
 	reactionsHandler := reactions.NewHandler(reactionsService)
 
 	// Setup routes and start HTTP server

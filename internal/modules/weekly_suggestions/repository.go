@@ -70,7 +70,7 @@ func (r *Repository) HasGeneratedForWeek(ctx context.Context, userID int64, week
 func (r *Repository) GetWeeklySuggestions(ctx context.Context, userID int64, weekStart string) ([]Movie, error) {
 	rows, err := db.Pool().Query(ctx, `
 		SELECT m.tmdb_id, m.title, m.poster_url, m.genres, m.release_year,
-		       m.tmdb_rating, uws.created_at
+		       m.tmdb_rating, uws.created_at::text
 		FROM user_weekly_suggestion_movies uwm
 		JOIN user_weekly_suggestions uws ON uwm.suggestion_id = uws.id
 		JOIN movies m ON uwm.movie_id = m.id
@@ -82,17 +82,46 @@ func (r *Repository) GetWeeklySuggestions(ctx context.Context, userID int64, wee
 	}
 	defer rows.Close()
 
-	var movies []Movie
+	movies := make([]Movie, 0)
 	for rows.Next() {
 		var m Movie
-		var genres interface{}
+		var genres []string
 		var createdAt string
 		if err := rows.Scan(&m.TMDBID, &m.Title, &m.PosterURL, &genres, &m.ReleaseYear, &m.TMDBRating, &createdAt); err != nil {
 			return nil, fmt.Errorf("failed to scan movie: %w", err)
 		}
-		if genres != nil {
-			m.Genres = parsePostgresArray(genres.(string))
+		m.Genres = genres
+		movies = append(movies, m)
+	}
+	return movies, rows.Err()
+}
+
+// GetLatestTrySuggestions fetches movies from the latest try in user_suggestions/user_suggestion_movies
+func (r *Repository) GetLatestTrySuggestions(ctx context.Context, userID int64, weekStart string) ([]Movie, error) {
+	rows, err := db.Pool().Query(ctx, `
+		SELECT m.tmdb_id, m.title, m.poster_url, m.genres, m.release_year, m.tmdb_rating
+		FROM user_suggestion_movies usm
+		JOIN user_suggestions us ON usm.suggestion_id = us.id
+		JOIN movies m ON usm.movie_id = m.id
+		WHERE us.user_id = $1 AND us.week_start = $2
+		  AND us.suggestion_index = (
+			  SELECT MAX(suggestion_index) FROM user_suggestions WHERE user_id = $1 AND week_start = $2
+		  )
+		ORDER BY usm.position
+	`, userID, weekStart)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	movies := make([]Movie, 0)
+	for rows.Next() {
+		var m Movie
+		var genres []string
+		if err := rows.Scan(&m.TMDBID, &m.Title, &m.PosterURL, &genres, &m.ReleaseYear, &m.TMDBRating); err != nil {
+			return nil, err
 		}
+		m.Genres = genres
 		movies = append(movies, m)
 	}
 	return movies, rows.Err()
@@ -150,7 +179,7 @@ func (r *Repository) UpsertMovie(ctx context.Context, tmdbID int, title string, 
 // GetFavoriteMovies returns user's favorite movies
 func (r *Repository) GetFavoriteMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at
+		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at::text
 		FROM user_movies um
 		JOIN movies m ON um.movie_id = m.id
 		WHERE um.user_id = $1 AND um.is_favorite = true
@@ -204,7 +233,7 @@ func (r *Repository) GetReactionCount(ctx context.Context, userID int64) (int, e
 // GetWatchlistMovies returns user's watchlist movies
 func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]FavoriteMovie, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at
+		SELECT um.id, m.tmdb_id, m.title, m.poster_url, m.release_year, um.added_at::text
 		FROM user_movies um
 		JOIN movies m ON um.movie_id = m.id
 		WHERE um.user_id = $1 AND um.status = 'watchlist'
@@ -232,7 +261,7 @@ func (r *Repository) GetWatchlistMovies(ctx context.Context, userID int64) ([]Fa
 // GetReactions returns user's past reactions
 func (r *Repository) GetReactions(ctx context.Context, userID int64) ([]Reaction, error) {
 	rows, err := db.Pool().Query(ctx, `
-		SELECT ur.movie_id, m.tmdb_id, m.title, ur.reaction, ur.created_at
+		SELECT ur.movie_id, m.tmdb_id, m.title, ur.reaction, ur.created_at::text
 		FROM user_reaction ur
 		JOIN movies m ON ur.movie_id = m.id
 		WHERE ur.user_id = $1
@@ -387,4 +416,47 @@ func reactionsString(reactions []Reaction) string {
 		parts = append(parts, fmt.Sprintf("%s: %s", r.Title, r.Reaction))
 	}
 	return strings.Join(parts, ", ")
+}
+
+// GetRemainingTries returns remaining weekly tries (max 3)
+func (r *Repository) GetRemainingTries(ctx context.Context, userID int64, weekStart string) (int, error) {
+	var maxIndex int
+	err := db.Pool().QueryRow(ctx, `
+		SELECT COALESCE(MAX(suggestion_index), 0)
+		FROM user_suggestions
+		WHERE user_id = $1 AND week_start = $2
+	`, userID, weekStart).Scan(&maxIndex)
+	if err != nil {
+		return 3, fmt.Errorf("failed to count suggestion tries: %w", err)
+	}
+	rem := 3 - maxIndex
+	if rem < 0 {
+		rem = 0
+	}
+	return rem, nil
+}
+
+// SyncInitialTryToUserSuggestions registers initial generation as try 1 in user_suggestions
+func (r *Repository) SyncInitialTryToUserSuggestions(ctx context.Context, userID int64, weekStart string, suggestionID int64) error {
+	var userSugID int64
+	err := db.Pool().QueryRow(ctx, `
+		INSERT INTO user_suggestions (user_id, week_start, suggestion_index)
+		VALUES ($1, $2, 1)
+		ON CONFLICT (user_id, week_start, suggestion_index) DO NOTHING
+		RETURNING id
+	`, userID, weekStart).Scan(&userSugID)
+	if err != nil {
+		// Might already exist if user previously generated
+		return nil
+	}
+
+	_, err = db.Pool().Exec(ctx, `
+		INSERT INTO user_suggestion_movies (suggestion_id, movie_id, title, poster_url, genres, release_year, tmdb_rating, position)
+		SELECT $1, w.movie_id, m.title, m.poster_url, m.genres, m.release_year, m.tmdb_rating, w.position
+		FROM user_weekly_suggestion_movies w
+		JOIN movies m ON w.movie_id = m.id
+		WHERE w.suggestion_id = $2
+		ON CONFLICT DO NOTHING
+	`, userSugID, suggestionID)
+	return err
 }

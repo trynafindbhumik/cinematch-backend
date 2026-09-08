@@ -16,13 +16,14 @@ type GetProfileResponse struct {
 type UpdateProfileRequest struct {
 	Name           string `json:"name,omitempty"`
 	ProfilePicture []byte `json:"-"` // Binary data from FormData
+	RemoveAvatar   bool   `json:"removeAvatar,omitempty"`
 	SmartSuggest   *bool  `json:"smartSuggest,omitempty"`
 }
 
 // UpdateProfileResponse is returned after successful profile update
 type UpdateProfileResponse struct {
 	Message      string  `json:"message"`
-	ProfileURL   *string `json:"profileUrl,omitempty"`
+	ProfileURL   *string `json:"profileUrl"`
 	Name         string  `json:"name,omitempty"`
 	SmartSuggest *bool   `json:"smartSuggest,omitempty"`
 }

@@ -50,10 +50,44 @@ func (r *Repository) AddReaction(ctx context.Context, userID int64, movieID int,
 	return nil
 }
 
+func isValidReaction(reaction string) bool {
+	switch reaction {
+	case "like", "love", "dislike", "hate", "skip":
+		return true
+	default:
+		return false
+	}
+}
+
+// UpsertMovie saves a movie into the movies table if it doesn't exist yet
+func (r *Repository) UpsertMovie(ctx context.Context, tmdbID int, title, posterURL, backdropURL string, releaseYear, tmdbRating int, genres []string) (int, error) {
+	var movieID int
+	err := db.Pool().QueryRow(ctx, `
+		INSERT INTO movies (tmdb_id, title, poster_url, backdrop_url, release_year, tmdb_rating, genres)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		ON CONFLICT (tmdb_id) DO UPDATE SET
+			title = EXCLUDED.title,
+			poster_url = EXCLUDED.poster_url,
+			backdrop_url = EXCLUDED.backdrop_url,
+			release_year = EXCLUDED.release_year,
+			tmdb_rating = EXCLUDED.tmdb_rating,
+			genres = EXCLUDED.genres,
+			updated_at = NOW()
+		RETURNING id
+	`, tmdbID, title, posterURL, backdropURL, releaseYear, tmdbRating, genres).Scan(&movieID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to upsert movie: %w", err)
+	}
+	return movieID, nil
+}
+
 // UpdateMovieReactionCounts updates the reaction counts for a movie
 func (r *Repository) UpdateMovieReactionCounts(ctx context.Context, movieID int, previousReaction string, newReaction string) error {
 	// If previous reaction exists, decrement that count
 	if previousReaction != "" && previousReaction != newReaction {
+		if !isValidReaction(previousReaction) {
+			return fmt.Errorf("invalid previous reaction: %s", previousReaction)
+		}
 		_, err := db.Pool().Exec(ctx, fmt.Sprintf(`
 			UPDATE movies
 			SET %s_count = %s_count - 1, total_count = total_count - 1
@@ -69,6 +103,9 @@ func (r *Repository) UpdateMovieReactionCounts(ctx context.Context, movieID int,
 		// If same reaction was already set, this is an update - we don't increment twice
 		if previousReaction == newReaction {
 			return nil
+		}
+		if !isValidReaction(newReaction) {
+			return fmt.Errorf("invalid reaction: %s", newReaction)
 		}
 		_, err := db.Pool().Exec(ctx, fmt.Sprintf(`
 			UPDATE movies

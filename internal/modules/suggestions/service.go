@@ -425,14 +425,23 @@ func (s *Service) generateNewSuggestions(ctx context.Context, userID int64) ([]i
 		return nil, fmt.Errorf("gemini call failed: %w", err)
 	}
 
-	if len(geminiResp.Recommendations) != numSuggestions {
-		log.Error("unexpected recommendation count", logger.Int("expected", numSuggestions), logger.Int("got", len(geminiResp.Recommendations)))
-		return nil, fmt.Errorf("expected %d suggestions, got %d", numSuggestions, len(geminiResp.Recommendations))
+	if len(geminiResp.Recommendations) == 0 {
+		log.Error("empty recommendations from gemini")
+		return nil, fmt.Errorf("no recommendations returned from AI")
+	}
+
+	if len(geminiResp.Recommendations) < numSuggestions {
+		log.Warn("gemini returned fewer recommendations than requested", logger.Int("expected", numSuggestions), logger.Int("got", len(geminiResp.Recommendations)))
 	}
 
 	var movieIDs []int
 	for _, rec := range geminiResp.Recommendations {
-		movieIDs = append(movieIDs, rec.TMDBID)
+		if rec.TMDBID > 0 {
+			movieIDs = append(movieIDs, rec.TMDBID)
+		}
+		if len(movieIDs) == numSuggestions {
+			break
+		}
 	}
 
 	return movieIDs, nil
@@ -456,30 +465,38 @@ func (s *Service) buildUserPrompt(favorites, watchlist []FavoriteMovie, reaction
 		prompt += "- Past Reactions: (none yet)\n"
 	}
 
-	prompt += "\nEXCLUDED TMDB IDs (already seen/reacted): "
-	if len(excludedIDs) > 0 {
-		for i, id := range excludedIDs {
-			if i > 0 {
-				prompt += ", "
-			}
-			prompt += fmt.Sprintf("%d", id)
-		}
-	} else {
-		prompt += "(none)"
+	var seenTitles []string
+	for _, f := range favorites {
+		seenTitles = append(seenTitles, f.Title)
 	}
-	prompt += "\n"
+	for _, w := range watchlist {
+		seenTitles = append(seenTitles, w.Title)
+	}
+	for _, r := range reactions {
+		seenTitles = append(seenTitles, r.Title)
+	}
+
+	prompt += "\nDO NOT RECOMMEND ANY OF THE FOLLOWING ALREADY SEEN/REACTED TITLES:\n"
+	if len(seenTitles) > 0 {
+		if len(seenTitles) > 50 {
+			seenTitles = seenTitles[:50]
+		}
+		prompt += strings.Join(seenTitles, ", ") + "\n"
+	} else {
+		prompt += "(none)\n"
+	}
 
 	prompt += fmt.Sprintf(`
 RULES:
-- Recommend exactly %d movies
+- Recommend up to %d movies
 - All must be UNREPRESENTED in favorites, watchlist, watched, and reactions
-- Year must be 1970-2026 OR WHATEVER THE CURRENT YEAR IS
-- TMDB ID must be a positive integer
+- Year must be 1970-2026
+- TMDB ID must be a positive integer corresponding to the movie in TMDB
 - Match reason must be 10-50 words explaining cinematic connections (style, theme, director, similar films)
 
 OUTPUT FORMAT:
-Return a JSON object with a "recommendations" array containing exactly %d objects with keys: tmdb_id (integer), title (string), year (integer), genre (array of 1-3 strings), match_reason (string).
-`, numSuggestions, numSuggestions)
+Return a JSON object with a "recommendations" array containing objects with keys: tmdb_id (integer), title (string), year (integer), genre (array of 1-3 strings), match_reason (string).
+`, numSuggestions)
 
 	return prompt
 }
